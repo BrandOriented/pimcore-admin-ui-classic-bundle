@@ -56,11 +56,9 @@ pimcore.element.workflows = Class.create({
 
 
             this.layout = new Ext.Panel( {
-                tabConfig: {
-                    tooltip: t('workflow_details')
-                },
+                title: t('workflow_details'),
                 items: [this.grid],
-                iconCls: "pimcore_material_icon_workflow pimcore_material_icon",
+                // iconCls: "pimcore_material_icon_workflow pimcore_material_icon",
                 layout: 'border'
             });
 
