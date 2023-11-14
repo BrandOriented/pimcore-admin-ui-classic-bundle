@@ -131,11 +131,9 @@ pimcore.element.tag.assignment = Class.create({
             });
 
             this.layout = Ext.create("Ext.Panel", {
-                tabConfig: {
-                    tooltip: t('tags')
-                },
+                title: t('tags'),
                 region: "center",
-                iconCls: "pimcore_material_icon_tags pimcore_material_icon",
+                // iconCls: "pimcore_material_icon_tags pimcore_material_icon",
                 layout: 'border',
                 items: [this.grid, treePanel],
                 listeners: {

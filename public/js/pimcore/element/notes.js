@@ -232,10 +232,8 @@ pimcore.element.notes = Class.create({
             });
 
             var layoutConf = {
-                tabConfig: {
-                    tooltip: t('notes_events')
-                },
-                iconCls: this.inElementContext ? 'pimcore_material_icon_notes pimcore_material_icon' : "pimcore_icon_notes",
+                title: t('notes_events'),
+                // iconCls: this.inElementContext ? 'pimcore_material_icon_notes pimcore_material_icon' : "pimcore_icon_notes",
                 items: [this.grid, this.detailView],
                 layout: "border",
                 closable: !this.inElementContext

@@ -27,7 +27,7 @@ pimcore.document.emails.settings = Class.create(pimcore.document.settings_abstra
                 bodyStyle:'padding:0 10px 0 10px;',
                 border: false,
                 autoScroll: true,
-                iconCls: "pimcore_material_icon_settings pimcore_material_icon",
+                // iconCls: "pimcore_material_icon_settings pimcore_material_icon",
                 items: [
                     {
                         xtype:'fieldset',

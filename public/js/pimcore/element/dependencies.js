@@ -28,15 +28,13 @@ pimcore.element.dependencies = Class.create({
 
         if (this.layout == null) {
             this.layout = new Ext.Panel({
-                tabConfig: {
-                    tooltip: t('dependencies')
-                },
+                title: t('dependencies'),
                 layout: {
                     type: 'hbox',
                     pack: 'start',
                     align: 'stretch',
                 },
-                iconCls: "pimcore_material_icon_dependencies pimcore_material_icon",
+                // iconCls: "pimcore_material_icon_dependencies pimcore_material_icon",
                 listeners:{
                     activate: this.getGridLayouts.bind(this)
                 }
