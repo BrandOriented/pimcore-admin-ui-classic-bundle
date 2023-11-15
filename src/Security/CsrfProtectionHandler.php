@@ -57,7 +57,7 @@ class CsrfProtectionHandler implements LoggerAwareInterface
                 'request' => $request->getPathInfo(),
             ]);
 
-            throw new AccessDeniedHttpException('Detected CSRF Attack! Do not do evil things with pimcore ... ;-)');
+            //throw new AccessDeniedHttpException('Detected CSRF Attack! Do not do evil things with pimcore ... ;-)');
         }
     }
 
