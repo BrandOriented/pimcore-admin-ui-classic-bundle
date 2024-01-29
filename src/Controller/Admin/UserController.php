@@ -1038,7 +1038,7 @@ class UserController extends AdminAbstractController implements KernelController
         // check permissions
         $unrestrictedActions = [
             'getCurrentUserAction', 'updateCurrentUserAction', 'getAvailablePermissionsAction', 'getMinimalAction',
-            'getImageAction', 'uploadCurrentUserImageAction', 'disable2FaSecretAction', 'renew2FaSecretAction',
+            'getImageAction', 'uploadCurrentUserImageAction', 'disable2FaSecretAction', 'renew2FaSecretAction', 'resetMy2FaSecretAction',
             'getUsersForSharingAction', 'getRolesForSharingAction', 'deleteImageAction',
         ];
 
