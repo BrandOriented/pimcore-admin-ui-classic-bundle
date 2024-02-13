@@ -1575,7 +1575,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
         );
         if (!$storage->fileExists($storagePath)) {
             \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
-                new DocumentPreviewMessage($this->getId())
+                new DocumentPreviewMessage($asset->getId())
             );
 
             return false;
