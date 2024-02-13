@@ -15,9 +15,6 @@
 
 namespace Pimcore\Bundle\AdminBundle\Controller\Admin\Asset;
 
-use Gotenberg\Exceptions\GotenbergApiErroed;
-use Gotenberg\Gotenberg as GotenbergAPI;
-use Gotenberg\Stream;
 use Pimcore\Bundle\AdminBundle\Controller\Admin\ElementControllerBase;
 use Pimcore\Bundle\AdminBundle\Controller\Traits\AdminStyleTrait;
 use Pimcore\Bundle\AdminBundle\Controller\Traits\ApplySchedulerDataTrait;
@@ -37,6 +34,7 @@ use Pimcore\Loader\ImplementationLoader\Exception\UnsupportedException;
 use Pimcore\Logger;
 use Pimcore\Messenger\AssetPreviewImageMessage;
 use Pimcore\Messenger\AssetUpdateTasksMessage;
+use Pimcore\Messenger\DocumentPreviewMessage;
 use Pimcore\Model;
 use Pimcore\Model\Asset;
 use Pimcore\Model\DataObject\ClassDefinition\Data\ManyToManyRelation;
@@ -64,7 +62,6 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Pimcore\Messenger\DocumentPreviewMessage;
 
 /**
  * @Route("/asset")
@@ -1580,6 +1577,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
 
             return false;
         }
+
         return $storage->fileExists($storagePath);
     }
 
