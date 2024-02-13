@@ -15,6 +15,9 @@
 
 namespace Pimcore\Bundle\AdminBundle\Controller\Admin\Asset;
 
+use Gotenberg\Exceptions\GotenbergApiErroed;
+use Gotenberg\Gotenberg as GotenbergAPI;
+use Gotenberg\Stream;
 use Pimcore\Bundle\AdminBundle\Controller\Admin\ElementControllerBase;
 use Pimcore\Bundle\AdminBundle\Controller\Traits\AdminStyleTrait;
 use Pimcore\Bundle\AdminBundle\Controller\Traits\ApplySchedulerDataTrait;
@@ -44,6 +47,7 @@ use Pimcore\Model\Element\ValidationException;
 use Pimcore\Model\Metadata;
 use Pimcore\Model\Schedule\Task;
 use Pimcore\Tool;
+use Pimcore\Tool\Storage;
 use RuntimeException;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Filesystem\Filesystem;
@@ -60,6 +64,7 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Pimcore\Messenger\DocumentPreviewMessage;
 
 /**
  * @Route("/asset")
@@ -137,7 +142,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
                 $data['data'] = false;
             }
         } elseif ($asset instanceof Asset\Document) {
-            $data['pdfPreviewAvailable'] = (bool)$this->getDocumentPreviewPdf($asset);
+            $data['pdfPreviewAvailable'] = (bool)$this->hasDocumentPreviewPdf($asset);
         } elseif ($asset instanceof Asset\Video) {
             $videoInfo = [];
 
@@ -1552,6 +1557,30 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             Asset\Enum\PdfScanStatus::UNSAFE => $this->render('@PimcoreAdmin/admin/asset/get_preview_pdf_unsafe.html.twig'),
             default => null,
         };
+    }
+
+    /**
+     * @param Asset\Document $asset
+     *
+     * @return resource|null
+     */
+    protected function hasDocumentPreviewPdf(Asset\Document $asset)
+    {
+        $storage = Storage::get('asset_cache');
+        $storagePath = sprintf(
+            '%s/%s/pdf-thumb__%s__libreoffice-document.png',
+            rtrim($asset->getRealPath(), '/'),
+            $asset->getId(),
+            $asset->getId(),
+        );
+        if (!$storage->fileExists($storagePath)) {
+            \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
+                new DocumentPreviewMessage($this->getId())
+            );
+
+            return false;
+        }
+        return $storage->fileExists($storagePath);
     }
 
     /**
