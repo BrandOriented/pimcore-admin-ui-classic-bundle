@@ -1,13 +1,24 @@
 <?php
 
+/**
+ * Pimcore
+ *
+ * This source file is available under two different licenses:
+ * - GNU General Public License version 3 (GPLv3)
+ * - Pimcore Commercial License (PCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ *  @copyright  Copyright (c) Pimcore GmbH (http://www.pimcore.org)
+ *  @license    http://www.pimcore.org/license     GPLv3 and PCL
+ */
+
 namespace Pimcore\Bundle\AdminBundle\Service;
 
-use Pimcore\Messenger\AssetPreviewImageMessage;
+use Pimcore\Model\Asset;
 use Pimcore\Tool\Storage;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Pimcore\Model\Asset;
 
 class ThumbnailLinkService
 {
@@ -52,6 +63,7 @@ class ThumbnailLinkService
 
         return urlencode_ignore_slash($storage->publicUrl($storagePath));
     }
+
     public static function getFolder(int $id)
     {
         $folder = Asset\Folder::getById($id);
@@ -75,6 +87,7 @@ class ThumbnailLinkService
 
         return null;
     }
+
     public static function getImage(int $id)
     {
         $asset = Asset\Image::getById($id);
