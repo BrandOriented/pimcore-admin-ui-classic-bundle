@@ -126,19 +126,31 @@ class ElementService implements ElementServiceInterface
 
         switch ($asset) {
             case $asset instanceof Asset\Image:
-                $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getimagethumbnail', $params);
+                $thumbnailUrl = ThumbnailLinkService::getImage($asset->getId());
+                if($thumbnailUrl === null) {
+                    $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getimagethumbnail', $params);
+                }
 
                 break;
             case $asset instanceof Asset\Folder:
-                $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getfolderthumbnail', $params);
+                $thumbnailUrl = ThumbnailLinkService::getFolder($asset->getId());
+                if($thumbnailUrl === null) {
+                    $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getfolderthumbnail', $params);
+                }
 
                 break;
             case $asset instanceof Asset\Video && \Pimcore\Video::isAvailable():
-                $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getvideothumbnail', $params);
+                $thumbnailUrl = ThumbnailLinkService::getVideo($asset->getId());
+                if($thumbnailUrl === null) {
+                    $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getvideothumbnail', $params);
+                }
 
                 break;
             case $asset instanceof Asset\Document && \Pimcore\Document::isAvailable() && $asset->getPageCount():
-                $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getdocumentthumbnail', $params);
+                $thumbnailUrl = ThumbnailLinkService::getDocument($asset->getId());
+                if($thumbnailUrl === null) {
+                    $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getdocumentthumbnail', $params);
+                }
 
                 break;
             case $asset instanceof Asset\Audio:
