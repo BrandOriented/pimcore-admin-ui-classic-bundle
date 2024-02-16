@@ -65,9 +65,6 @@ class ThumbnailLinkService
         );
 
         if ($folder instanceof  Asset\Folder) {
-            if (!$folder->isAllowed('view')) {
-                throw new AccessDeniedException('not allowed to view thumbnail');
-            }
             if($storage->fileExists($cacheFilePath)) {
                 return urlencode_ignore_slash($storage->publicUrl($storagePath));
             }
