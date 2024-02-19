@@ -1532,6 +1532,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             throw $this->createAccessDeniedException('Access to asset ' . $asset->getId() . ' denied');
         }
     }
+
     /**
      * @Route("/get-preview-document-url", name="pimcore_admin_asset_getpreviewdocument_url", methods={"GET"})
      */
