@@ -108,7 +108,7 @@ pimcore.asset.document = Class.create(pimcore.asset.asset, {
                 iconCls: "pimcore_material_icon_devices pimcore_material_icon",
                 listeners: {
                     "beforerender": function (el) {
-                        var response = Ext.Ajax.request({
+                        Ext.Ajax.request({
                             async: false,
                             url: Routing.generate('pimcore_admin_asset_getpreviewdocument_url', {
                                 id: id,
@@ -116,14 +116,16 @@ pimcore.asset.document = Class.create(pimcore.asset.asset, {
                             }),
                             success: function (response) {
                                 var urlData = Ext.decode(response.responseText);
-                                var url = urlData.replace(/\\\//g, "/") ?? Routing.generate('pimcore_admin_asset_getpreviewdocument', {id: this.id, '_dc': date.getTime()});
+                                var url = urlData.replace(/\\\//g, "/") ?? Routing.generate('pimcore_admin_asset_getpreviewdocument', {id: id, '_dc': date.getTime()});
                                 el.add({
                                     xtype: 'box',
                                     autoEl: {
                                         tag: 'iframe',
                                         src: url,
                                         width: '100%',
-                                        height: '100%'
+                                        height: '100%',
+                                        frameborder: 0,
+                                        id: frameId
                                     }
                                 });
                             },
