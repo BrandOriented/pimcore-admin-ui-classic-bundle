@@ -102,22 +102,9 @@ pimcore.asset.document = Class.create(pimcore.asset.asset, {
         if (!this.editPanel) {
             var frameId = 'asset_document_edit_' + this.id;
             var date = new Date();
-            let currentDocumentUrl = null;
-            Ext.Ajax.request({
-                url: Routing.generate('pimcore_admin_asset_getpreviewdocument_url', {
-                    id: this.id,
-                    '_dc': date.getTime()
-                }),
-                success: function (response) {
-                    currentDocumentUrl = Ext.decode(response.responseText);
-                }.bind(this)
-            });
 
             var content = '<iframe src="'
-                + currentDocumentUrl ?? Routing.generate('pimcore_admin_asset_getpreviewdocument', {
-                    id: this.id,
-                    '_dc': date.getTime()
-                })
+                + Routing.generate('pimcore_admin_asset_getpreviewdocument', {id: this.id, '_dc': date.getTime()})
                 + '" frameborder="0" style="width: 100%;" id="' + frameId + '"></iframe>';
 
             this.editPanel = new Ext.Panel({
