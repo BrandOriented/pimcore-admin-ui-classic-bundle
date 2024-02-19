@@ -77,8 +77,11 @@ class ThumbnailLinkService
         );
 
         if ($folder instanceof  Asset\Folder) {
+            if (!$folder->isAllowed('view')) {
+                return null;
+            }
             if($storage->fileExists($cacheFilePath)) {
-                return urlencode_ignore_slash($storage->publicUrl($storagePath));
+                return urlencode_ignore_slash($storage->publicUrl($cacheFilePath));
             }
         }
 
@@ -94,7 +97,7 @@ class ThumbnailLinkService
         }
 
         if (!$asset->isAllowed('view')) {
-            throw new AccessDeniedException('not allowed to view thumbnail');
+            return null;
         }
 
         $thumbnail = Asset\Image\Thumbnail\Config::getPreviewConfig();
@@ -153,7 +156,7 @@ class ThumbnailLinkService
         }
 
         if (!$document->isAllowed('view')) {
-            throw new AccessDeniedException('not allowed to view thumbnail');
+            return null;
         }
 
         $thumbnail = Asset\Image\Thumbnail\Config::getPreviewConfig();
