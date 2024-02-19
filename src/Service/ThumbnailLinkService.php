@@ -18,7 +18,6 @@ namespace Pimcore\Bundle\AdminBundle\Service;
 use Pimcore\Model\Asset;
 use Pimcore\Tool\Storage;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class ThumbnailLinkService
 {
