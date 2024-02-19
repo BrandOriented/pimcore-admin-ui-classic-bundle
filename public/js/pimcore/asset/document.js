@@ -98,20 +98,38 @@ pimcore.asset.document = Class.create(pimcore.asset.asset, {
     },
 
     getEditPanel: function () {
-
         if (!this.editPanel) {
             var frameId = 'asset_document_edit_' + this.id;
             var date = new Date();
-
-            var content = '<iframe src="'
-                + Routing.generate('pimcore_admin_asset_getpreviewdocument', {id: this.id, '_dc': date.getTime()})
-                + '" frameborder="0" style="width: 100%;" id="' + frameId + '"></iframe>';
-
+            var id = this.id;
             this.editPanel = new Ext.Panel({
                 title: t("preview"),
                 bodyCls: "pimcore_overflow_scrolling",
-                html: content,
-                iconCls: "pimcore_material_icon_devices pimcore_material_icon"
+                iconCls: "pimcore_material_icon_devices pimcore_material_icon",
+                listeners: {
+                    "beforerender": function (el) {
+                        var response = Ext.Ajax.request({
+                            async: false,
+                            url: Routing.generate('pimcore_admin_asset_getpreviewdocument_url', {
+                                id: id,
+                                '_dc': date.getTime()
+                            }),
+                            success: function (response) {
+                                var urlData = Ext.decode(response.responseText);
+                                var url = urlData.replace(/\\\//g, "/") ?? Routing.generate('pimcore_admin_asset_getpreviewdocument', {id: this.id, '_dc': date.getTime()});
+                                el.add({
+                                    xtype: 'box',
+                                    autoEl: {
+                                        tag: 'iframe',
+                                        src: url,
+                                        width: '100%',
+                                        height: '100%'
+                                    }
+                                });
+                            },
+                        });
+                    }
+                }
             });
 
             this.editPanel.on("resize", function (el, width, height, rWidth, rHeight) {

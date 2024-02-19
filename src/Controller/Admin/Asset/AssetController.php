@@ -1532,14 +1532,13 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             throw $this->createAccessDeniedException('Access to asset ' . $asset->getId() . ' denied');
         }
     }
-
     /**
      * @Route("/get-preview-document-url", name="pimcore_admin_asset_getpreviewdocument_url", methods={"GET"})
      */
     public function getPreviewDocumentUrlAction(
         Request $request,
         TranslatorInterface $translator
-    ): StreamedResponse|Response {
+    ): JsonResponse {
         $asset = Asset\Document::getById((int) $request->get('id'));
 
         if (!$asset) {
@@ -1547,23 +1546,23 @@ class AssetController extends ElementControllerBase implements KernelControllerE
         }
 
         if ($asset->isAllowed('view')) {
-            if ($asset->getMimeType() === 'application/pdf') {
-                if($this->hasDocumentPreviewPdf($asset)) {
-                    $storage = Storage::get('asset_cache');
-                    $storagePath = sprintf(
-                        '%s/%s/pdf-thumb__%s__libreoffice-document.pdf',
-                        rtrim($asset->getRealPath(), '/'),
-                        $asset->getId(),
-                        $asset->getId(),
-                    );
-                    if ($storage->fileExists($storagePath)) {
-                        return urlencode_ignore_slash($storage->publicUrl($storagePath));
-                    }
+            if($this->hasDocumentPreviewPdf($asset)) {
+                $storage = Storage::get('asset_cache');
+                $storagePath = sprintf(
+                    '%s/%s/pdf-thumb__%s__libreoffice-document.pdf',
+                    rtrim($asset->getRealPath(), '/'),
+                    $asset->getId(),
+                    $asset->getId(),
+                );
+                if ($storage->fileExists($storagePath)) {
+                    return new JsonResponse(urlencode_ignore_slash($storage->publicUrl($storagePath)));
                 }
             }
         } else {
             throw $this->createAccessDeniedException('Access to asset ' . $asset->getId() . ' denied');
         }
+
+        return new JsonResponse($this->generateUrl('pimcore_admin_asset_getpreviewdocument', ['id' => $request->get('id')]));
     }
 
     private function getResponseByScanStatus(Asset\Document $asset, bool $processBackground = true): ?Response
@@ -1598,7 +1597,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
     {
         $storage = Storage::get('asset_cache');
         $storagePath = sprintf(
-            '%s/%s/pdf-thumb__%s__libreoffice-document.png',
+            '%s/%s/pdf-thumb__%s__libreoffice-document.pdf',
             rtrim($asset->getRealPath(), '/'),
             $asset->getId(),
             $asset->getId(),
