@@ -23,7 +23,6 @@ use Pimcore\Bundle\AdminBundle\Event\ElementAdminStyleEvent;
 use Pimcore\Config;
 use Pimcore\Logger;
 use Pimcore\Model\Asset;
-use Pimcore\Model\Asset\Thumbnail\ThumbnailLinkService;
 use Pimcore\Model\DataObject;
 use Pimcore\Model\Document;
 use Pimcore\Model\Element\ElementInterface;
