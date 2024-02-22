@@ -89,6 +89,17 @@ class ThumbnailLinkService
 
     public static function getImage(int $id)
     {
+        $storage = Storage::get('thumbnail');
+        $imageStorage = self::getImageStorage($id);
+        if($imageStorage === null) {
+            return null;
+        }
+
+        return urlencode_ignore_slash($storage->publicUrl($imageStorage));
+    }
+
+    public static function getImageStorage(int $id)
+    {
         $asset = Asset\Image::getById($id);
 
         if (!$asset) {
@@ -143,7 +154,7 @@ class ThumbnailLinkService
             return null;
         }
 
-        return urlencode_ignore_slash($storage->publicUrl($storagePath));
+        return $storagePath;
     }
 
     public static function getDocument(int $id, int $page = 1)

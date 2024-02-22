@@ -23,6 +23,7 @@ use Pimcore\Bundle\AdminBundle\Event\AdminEvents;
 use Pimcore\Bundle\AdminBundle\Event\ElementAdminStyleEvent;
 use Pimcore\Bundle\AdminBundle\Helper\GridHelperService;
 use Pimcore\Bundle\AdminBundle\Security\CsrfProtectionHandler;
+use Pimcore\Bundle\AdminBundle\Service\ThumbnailLinkService;
 use Pimcore\Config;
 use Pimcore\Controller\KernelControllerEventInterface;
 use Pimcore\Controller\Traits\ElementEditLockHelperTrait;
@@ -1288,9 +1289,9 @@ class AssetController extends ElementControllerBase implements KernelControllerE
                 'width' => $thumbnail->getWidth(),
                 'height' => $thumbnail->getHeight(), ]);
         }
-
-        $stream = $thumbnail->getStream();
-
+        $imageStorage = ThumbnailLinkService::getImageStorage($image->getId());
+        $storage = Storage::get('thumbnail');
+        $stream = $storage->readStream($imageStorage);
         if (!$stream) {
             return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
         }
