@@ -15,6 +15,7 @@
 
 namespace Pimcore\Bundle\AdminBundle\Service;
 
+use Pimcore\Messenger\AssetPreviewImageMessage;
 use Pimcore\Model\Asset;
 use Pimcore\Tool\Storage;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -151,6 +152,11 @@ class ThumbnailLinkService
         $storage = Storage::get('thumbnail');
 
         if (!$storage->fileExists($storagePath)) {
+
+            \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
+                new AssetPreviewImageMessage($asset->getId())
+            );
+
             return null;
         }
 
