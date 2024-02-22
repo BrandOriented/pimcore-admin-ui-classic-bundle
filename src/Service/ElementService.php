@@ -23,6 +23,7 @@ use Pimcore\Bundle\AdminBundle\Event\ElementAdminStyleEvent;
 use Pimcore\Config;
 use Pimcore\Logger;
 use Pimcore\Model\Asset;
+use Pimcore\Model\Asset\Thumbnail\ThumbnailLinkService;
 use Pimcore\Model\DataObject;
 use Pimcore\Model\Document;
 use Pimcore\Model\Element\ElementInterface;
@@ -30,7 +31,6 @@ use Pimcore\Model\Element\Service;
 use Pimcore\Model\Site;
 use Pimcore\Security\User\UserLoader;
 use Pimcore\Tool\Frontend;
-
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
