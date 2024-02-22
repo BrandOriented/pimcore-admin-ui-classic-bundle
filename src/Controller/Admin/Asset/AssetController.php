@@ -1291,6 +1291,9 @@ class AssetController extends ElementControllerBase implements KernelControllerE
         }
         $imageStorage = ThumbnailLinkService::getImageStorage($image->getId());
         $storage = Storage::get('thumbnail');
+        if($imageStorage === null) {
+            return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
+        }
         $stream = $storage->readStream($imageStorage);
         if (!$stream) {
             return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
