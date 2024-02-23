@@ -17,6 +17,7 @@ namespace Pimcore\Bundle\AdminBundle\Service;
 
 use Pimcore\Messenger\AssetPreviewImageMessage;
 use Pimcore\Model\Asset;
+use Pimcore\Model\Asset\Image\ThumbnailInterface;
 use Pimcore\Tool\Storage;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -99,7 +100,7 @@ class ThumbnailLinkService
         return urlencode_ignore_slash($storage->publicUrl($imageStorage));
     }
 
-    public static function getImageStorage(int $id)
+    public static function getImageStorage(int $id, ThumbnailInterface $thumbnail = null)
     {
         $asset = Asset\Image::getById($id);
 
@@ -111,7 +112,9 @@ class ThumbnailLinkService
             return null;
         }
 
-        $thumbnail = Asset\Image\Thumbnail\Config::getPreviewConfig();
+        if($thumbnail === null) {
+            $thumbnail = Asset\Image\Thumbnail\Config::getPreviewConfig();
+        }
         $thumb = $asset->getThumbnail($thumbnail);
 
         $config = $thumb->getConfig();
