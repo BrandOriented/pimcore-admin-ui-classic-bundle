@@ -1236,14 +1236,16 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             return $this->adminJson($thumbnailArray);
         } elseif (isset($thumbnailArray['path'])) {
             $storage = Storage::get('thumbnail');
-            $stream = $storage->readStream($thumbnailArray['path']);
-            if ($stream) {
-                $response = new StreamedResponse(function () use ($stream) {
-                    fpassthru($stream);
+            if ($storage->fileExists($thumbnailArray['path'])) {
+                $response = new StreamedResponse(function() use ($thumbnailArray, $storage) {
+                    $outputStream = fopen('php://output', 'wb');
+                    $stream = $storage->readStream($thumbnailArray['path']);
+                    stream_copy_to_stream($stream, $outputStream);
                 }, 200, [
                     'Content-Type' => $thumbnailArray['mimeType'],
                     'Access-Control-Allow-Origin', '*',
                 ]);
+
                 $this->addThumbnailCacheHeaders($response);
 
                 return $response;
@@ -1307,14 +1309,16 @@ class AssetController extends ElementControllerBase implements KernelControllerE
 
         if (isset($thumbnailArray['path'])) {
             $storage = Storage::get('thumbnail');
-            $stream = $storage->readStream($thumbnailArray['path']);
-            if ($stream) {
-                $response = new StreamedResponse(function () use ($stream) {
-                    fpassthru($stream);
+            if ($storage->fileExists($thumbnailArray['path'])) {
+                $response = new StreamedResponse(function() use ($thumbnailArray, $storage) {
+                    $outputStream = fopen('php://output', 'wb');
+                    $stream = $storage->readStream($thumbnailArray['path']);
+                    stream_copy_to_stream($stream, $outputStream);
                 }, 200, [
                     'Content-Type' => $thumbnailArray['mimeType'],
                     'Access-Control-Allow-Origin', '*',
                 ]);
+
                 $this->addThumbnailCacheHeaders($response);
 
                 return $response;
@@ -1330,6 +1334,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
      * @param Request $request
      *
      * @return StreamedResponse|BinaryFileResponse
+     * @throws FilesystemException
      */
     public function getDocumentThumbnailAction(Request $request): BinaryFileResponse|StreamedResponse
     {
@@ -1338,14 +1343,16 @@ class AssetController extends ElementControllerBase implements KernelControllerE
 
         if (isset($thumbnailArray['path'])) {
             $storage = Storage::get('thumbnail');
-            $stream = $storage->readStream($thumbnailArray['path']);
-            if ($stream) {
-                $response = new StreamedResponse(function () use ($stream) {
-                    fpassthru($stream);
+            if ($storage->fileExists($thumbnailArray['path'])) {
+                $response = new StreamedResponse(function() use ($thumbnailArray, $storage) {
+                    $outputStream = fopen('php://output', 'wb');
+                    $stream = $storage->readStream($thumbnailArray['path']);
+                    stream_copy_to_stream($stream, $outputStream);
                 }, 200, [
                     'Content-Type' => $thumbnailArray['mimeType'],
                     'Access-Control-Allow-Origin', '*',
                 ]);
+
                 $this->addThumbnailCacheHeaders($response);
 
                 return $response;

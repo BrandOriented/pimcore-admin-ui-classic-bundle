@@ -130,10 +130,6 @@ class Document implements ServiceInterface
 
         if ($request->get('treepreview')) {
             $thumbnail = Asset\Image\Thumbnail\Config::getPreviewConfig();
-            $thumbnail->addItem('scaleByWidth', [
-                'width' => 200,
-                'forceResize' => true,
-            ]);
         }
 
         $page = 1;
