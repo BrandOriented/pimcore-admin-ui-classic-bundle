@@ -62,12 +62,12 @@ class Image implements ServiceInterface
             $storage = Storage::get('thumbnail');
             if(!$storage->fileExists($storagePath)) {
                 $this->async($image->getId());
+            } else {
+                return [
+                    'path' => $storagePath,
+                    'mimeType' => $thumbnail->getMimeType(),
+                ];
             }
-
-            return [
-                'path' => $storagePath,
-                'mimeType' => $thumbnail->getMimeType(),
-            ];
         }
 
         return [];

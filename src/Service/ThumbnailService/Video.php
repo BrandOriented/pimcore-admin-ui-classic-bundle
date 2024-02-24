@@ -62,12 +62,12 @@ class Video implements ServiceInterface
             $storage = Storage::get('thumbnail');
             if(!$storage->fileExists($storagePath)) {
                 $this->async($video->getId());
+            } else {
+                return [
+                    'path' => $storagePath,
+                    'mimeType' => $thumbnail->getMimeType(),
+                ];
             }
-
-            return [
-                'path' => $storagePath,
-                'mimeType' => $thumbnail->getMimeType(),
-            ];
         }
 
         return [];
