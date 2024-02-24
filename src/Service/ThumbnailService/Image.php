@@ -1,12 +1,26 @@
 <?php
 
+/**
+ * Pimcore
+ *
+ * This source file is available under two different licenses:
+ * - GNU General Public License version 3 (GPLv3)
+ * - Pimcore Commercial License (PCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ *  @copyright  Copyright (c) Pimcore GmbH (http://www.pimcore.org)
+ *  @license    http://www.pimcore.org/license     GPLv3 and PCL
+ */
+
 namespace Pimcore\Bundle\AdminBundle\Service\ThumbnailService;
 
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService;
 use Pimcore\Controller\Traits\JsonHelperTrait;
 use Pimcore\Messenger\AssetPreviewImageMessage;
-use Symfony\Component\HttpFoundation\Request;
 use Pimcore\Model\Asset;
+use Symfony\Component\HttpFoundation\Request;
+
 class Image
 {
     use JsonHelperTrait;
@@ -17,6 +31,7 @@ class Image
             new AssetPreviewImageMessage($id)
         );
     }
+
     public function getThumbnail(Request $request): array
     {
         $image = Asset\Image::getById((int)$request->get('id'));
@@ -25,7 +40,7 @@ class Image
             if($request->get('fileinfo')) {
                 return [
                     'width' => $thumbnail->getWidth(),
-                    'height' => $thumbnail->getHeight()
+                    'height' => $thumbnail->getHeight(),
                 ];
             }
 
@@ -36,7 +51,7 @@ class Image
                     $image->getRealPath(),
                     $image->getChecksum()
                 ),
-                'mimeType' => $thumbnail->getMimeType()
+                'mimeType' => $thumbnail->getMimeType(),
             ];
         }
 
@@ -79,6 +94,7 @@ class Image
         }
 
         $filename .= '.' . $thumbnail->getHash([$checksum]) . '.'. $fileExtension;
+
         return $thumbDir . '/' . $filename;
     }
 
