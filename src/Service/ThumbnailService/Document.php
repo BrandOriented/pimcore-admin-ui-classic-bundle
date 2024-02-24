@@ -74,11 +74,11 @@ class Document implements ServiceInterface
     }
 
     public function getStoragePath(Asset\Thumbnail\ThumbnailInterface $thumb,
-                                   int $page,
-                                   int $id,
-                                   string $filename,
-                                   string $realPath,
-                                   string $checksum): string
+        int $page,
+        int $id,
+        string $filename,
+        string $realPath,
+        string $checksum): string
     {
         $thumbnail = $thumb->getConfig();
         $thumbnail->setFilenameSuffix('page-' . $page);
@@ -132,7 +132,7 @@ class Document implements ServiceInterface
             $thumbnail = Asset\Image\Thumbnail\Config::getPreviewConfig();
             $thumbnail->addItem('scaleByWidth', [
                 'width' => 200,
-                'forceResize' => true
+                'forceResize' => true,
             ]);
         }
 

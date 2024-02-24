@@ -52,7 +52,6 @@ class Image implements ServiceInterface
                 ];
             }
 
-
             $storagePath = $this->getStoragePath($thumbnail,
                 $image->getId(),
                 $image->getFilename(),

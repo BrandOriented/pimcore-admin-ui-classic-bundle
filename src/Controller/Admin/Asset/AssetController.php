@@ -24,7 +24,6 @@ use Pimcore\Bundle\AdminBundle\Event\AdminEvents;
 use Pimcore\Bundle\AdminBundle\Event\ElementAdminStyleEvent;
 use Pimcore\Bundle\AdminBundle\Helper\GridHelperService;
 use Pimcore\Bundle\AdminBundle\Security\CsrfProtectionHandler;
-use Pimcore\Bundle\AdminBundle\Service\ThumbnailLinkService;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService\Document;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService\Image;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService\Video;
@@ -37,7 +36,6 @@ use Pimcore\Event\Model\Asset\ResolveUploadTargetEvent;
 use Pimcore\File;
 use Pimcore\Loader\ImplementationLoader\Exception\UnsupportedException;
 use Pimcore\Logger;
-use Pimcore\Messenger\AssetPreviewImageMessage;
 use Pimcore\Messenger\AssetUpdateTasksMessage;
 use Pimcore\Messenger\DocumentPreviewMessage;
 use Pimcore\Model;
@@ -1299,6 +1297,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
      * @param Request $request
      *
      * @return StreamedResponse
+     *
      * @throws FilesystemException
      */
     public function getVideoThumbnailAction(Request $request): Response

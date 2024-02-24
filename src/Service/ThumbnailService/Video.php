@@ -23,7 +23,7 @@ use Pimcore\Model\Asset;
 use Pimcore\Tool\Storage;
 use Symfony\Component\HttpFoundation\Request;
 
-class Video  implements ServiceInterface
+class Video implements ServiceInterface
 {
     use JsonHelperTrait;
 
@@ -62,6 +62,7 @@ class Video  implements ServiceInterface
             if(!$storage->fileExists($storagePath)) {
                 $this->async($video->getId());
             }
+
             return [
                 'path' => $storagePath,
                 'mimeType' => $thumbnail->getMimeType(),
