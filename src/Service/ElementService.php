@@ -113,6 +113,9 @@ class ElementService implements ElementServiceInterface
         return $tmpNode;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getThumbnailUrl(Asset $asset, array $params = []): ?string
     {
         $defaults = [
@@ -129,7 +132,7 @@ class ElementService implements ElementServiceInterface
             $asset instanceof Asset\Video && \Pimcore\Video::isAvailable() => $this->urlGenerator->generate('pimcore_admin_asset_getvideothumbnail', $params),
             $asset instanceof Asset\Document && \Pimcore\Document::isAvailable() && $asset->getPageCount() => $this->urlGenerator->generate('pimcore_admin_asset_getdocumentthumbnail', $params),
             $asset instanceof Asset\Audio => '/bundles/pimcoreadmin/img/flat-color-icons/speaker.svg',
-            default => '/bundles/pimcoreadmin/img/filetype-not-supported.svg',
+            default => throw new \Exception(get_class($asset)),
         };
     }
 
