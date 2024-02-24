@@ -166,7 +166,18 @@ class ThumbnailLinkService
         return $storagePath;
     }
 
-    public static function getDocument(int $id, int $page = 1)
+    public static function getDocument(int $id)
+    {
+        $storage = Storage::get('thumbnail');
+        $imageStorage = self::getDocumentStorage($id);
+        if($imageStorage === null) {
+            return null;
+        }
+
+        return urlencode_ignore_slash($storage->publicUrl($imageStorage));
+    }
+
+    public static function getDocumentStorage(int $id, int $page = 1): ?string
     {
         $document = Asset\Document::getById($id);
 
@@ -220,10 +231,15 @@ class ThumbnailLinkService
         $storage = Storage::get('thumbnail');
 
         if (!$storage->fileExists($storagePath)) {
+
+            \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
+                new AssetPreviewImageMessage($document->getId())
+            );
+
             return null;
         }
 
-        return urlencode_ignore_slash($storage->publicUrl($storagePath));
+        return $storagePath;
     }
 
     private static function getAllowedFormat(string $format, array $allowed = [], string $fallback = 'png'): string

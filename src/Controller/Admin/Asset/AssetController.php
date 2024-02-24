@@ -15,6 +15,7 @@
 
 namespace Pimcore\Bundle\AdminBundle\Controller\Admin\Asset;
 
+use League\Flysystem\FilesystemException;
 use Pimcore\Bundle\AdminBundle\Controller\Admin\ElementControllerBase;
 use Pimcore\Bundle\AdminBundle\Controller\Traits\AdminStyleTrait;
 use Pimcore\Bundle\AdminBundle\Controller\Traits\ApplySchedulerDataTrait;
@@ -24,6 +25,7 @@ use Pimcore\Bundle\AdminBundle\Event\ElementAdminStyleEvent;
 use Pimcore\Bundle\AdminBundle\Helper\GridHelperService;
 use Pimcore\Bundle\AdminBundle\Security\CsrfProtectionHandler;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailLinkService;
+use Pimcore\Bundle\AdminBundle\Service\ThumbnailService\Image;
 use Pimcore\Config;
 use Pimcore\Controller\KernelControllerEventInterface;
 use Pimcore\Controller\Traits\ElementEditLockHelperTrait;
@@ -1220,9 +1222,10 @@ class AssetController extends ElementControllerBase implements KernelControllerE
      *
      * @param Request $request
      *
-     * @return StreamedResponse|JsonResponse|BinaryFileResponse
+     * @return Response
+     * @throws FilesystemException
      */
-    public function getImageThumbnailAction(Request $request): BinaryFileResponse|JsonResponse|StreamedResponse
+    public function getImageThumbnailAction(Request $request): Response
     {
         $fileinfo = $request->get('fileinfo');
         $image = Asset\Image::getById((int)$request->get('id'));
@@ -1235,80 +1238,28 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             throw $this->createAccessDeniedException('not allowed to view thumbnail');
         }
 
-        $thumbnailConfig = null;
-
-        if ($request->get('thumbnail')) {
-            $thumbnailConfig = $image->getThumbnail($request->get('thumbnail'))->getConfig();
-        }
-        if (!$thumbnailConfig) {
-            if ($request->get('config')) {
-                $thumbnailConfig = $image->getThumbnail($this->decodeJson($request->get('config')))->getConfig();
-            } else {
-                $thumbnailConfig = $image->getThumbnail(array_merge($request->request->all(), $request->query->all()))->getConfig();
-            }
-        } else {
-            // no high-res images in admin mode (editmode)
-            // this is mostly because of the document's image editable, which doesn't know anything about the thumbnail
-            // configuration, so the dimensions would be incorrect (double the size)
-            $thumbnailConfig->setHighResolution(1);
-        }
-
-        $format = strtolower($thumbnailConfig->getFormat());
-        if ($format == 'source' || $format == 'print') {
-            $thumbnailConfig->setFormat('PNG');
-            $thumbnailConfig->setRasterizeSVG(true);
-        }
-
-        if ($request->get('treepreview')) {
-            $thumbnailConfig = Asset\Image\Thumbnail\Config::getPreviewConfig();
-            if ($request->get('origin') === 'treeNode' && !$image->getThumbnail($thumbnailConfig)->exists()) {
-                \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
-                    new AssetPreviewImageMessage($image->getId())
-                );
-
-                throw $this->createNotFoundException(sprintf('Tree preview thumbnail not available for asset %s', $image->getId()));
-            }
-        }
-
-        $cropPercent = $request->get('cropPercent');
-        if ($cropPercent && filter_var($cropPercent, FILTER_VALIDATE_BOOLEAN)) {
-            $thumbnailConfig->addItemAt(0, 'cropPercent', [
-                'width' => $request->get('cropWidth'),
-                'height' => $request->get('cropHeight'),
-                'y' => $request->get('cropTop'),
-                'x' => $request->get('cropLeft'),
-            ]);
-
-            $thumbnailConfig->generateAutoName();
-        }
-
-        $thumbnail = $image->getThumbnail($thumbnailConfig);
+        $image = new Image();
+        $thumbnailArray = $image->getThumbnail($request);
 
         if ($fileinfo) {
-            return $this->adminJson([
-                'width' => $thumbnail->getWidth(),
-                'height' => $thumbnail->getHeight(), ]);
-        }
-        $imageStorage = ThumbnailLinkService::getImageStorage($image->getId(), $thumbnail);
-        if($imageStorage === null) {
-            return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
-        }
-        $storage = Storage::get('thumbnail');
-        $stream = $storage->readStream($imageStorage);
-        if (!$stream) {
-            return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
+            return $this->adminJson($thumbnailArray);
+        } else if (isset($thumbnailArray['path'])) {
+            $storage = Storage::get('thumbnail');
+            $stream = $storage->readStream($thumbnailArray['path']);
+            if ($stream) {
+                $response = new StreamedResponse(function () use ($stream) {
+                    fpassthru($stream);
+                }, 200, [
+                    'Content-Type' => $thumbnailArray['mimeType'],
+                    'Access-Control-Allow-Origin', '*',
+                ]);
+                $this->addThumbnailCacheHeaders($response);
+
+                return $response;
+            }
         }
 
-        $response = new StreamedResponse(function () use ($stream) {
-            fpassthru($stream);
-        }, 200, [
-            'Content-Type' => $thumbnail->getMimeType(),
-            'Access-Control-Allow-Origin', '*',
-        ]);
-
-        $this->addThumbnailCacheHeaders($response);
-
-        return $response;
+        return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
     }
 
     /**
@@ -1412,9 +1363,14 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             throw $this->createNotFoundException(sprintf('Tree preview thumbnail not available for asset %s', $video->getId()));
         }
 
-        $stream = $thumb->getStream();
+        $imageStorage = ThumbnailLinkService::getImageStorage($video->getId(), $thumbnail);
+        if($imageStorage === null) {
+            return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
+        }
+        $storage = Storage::get('thumbnail');
+        $stream = $storage->readStream($imageStorage);
         if (!$stream) {
-            throw $this->createNotFoundException('Unable to get video thumbnail for video ' . $video->getId());
+            return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
         }
 
         $response = new StreamedResponse(function () use ($stream) {
@@ -1473,7 +1429,16 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             throw $this->createNotFoundException(sprintf('Tree preview thumbnail not available for asset %s', $document->getId()));
         }
 
-        $stream = $thumb->getStream();
+        $imageStorage = ThumbnailLinkService::getDocumentStorage($document->getId(), $thumbnail);
+        if($imageStorage === null) {
+            return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
+        }
+        $storage = Storage::get('thumbnail');
+        $stream = $storage->readStream($imageStorage);
+        if (!$stream) {
+            return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
+        }
+
         if ($stream) {
             $response = new StreamedResponse(function () use ($stream) {
                 fpassthru($stream);

@@ -123,44 +123,14 @@ class ElementService implements ElementServiceInterface
 
         $params = array_merge($defaults, $params);
 
-        switch ($asset) {
-            case $asset instanceof Asset\Image:
-                $thumbnailUrl = ThumbnailLinkService::getImage($asset->getId());
-                if($thumbnailUrl === null) {
-                    $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getimagethumbnail', $params);
-                }
-
-                break;
-            case $asset instanceof Asset\Folder:
-                $thumbnailUrl = ThumbnailLinkService::getFolder($asset->getId());
-                if($thumbnailUrl === null) {
-                    $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getfolderthumbnail', $params);
-                }
-
-                break;
-            case $asset instanceof Asset\Video && \Pimcore\Video::isAvailable():
-                $thumbnailUrl = ThumbnailLinkService::getVideo($asset->getId());
-                if($thumbnailUrl === null) {
-                    $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getvideothumbnail', $params);
-                }
-
-                break;
-            case $asset instanceof Asset\Document && \Pimcore\Document::isAvailable() && $asset->getPageCount():
-                $thumbnailUrl = ThumbnailLinkService::getDocument($asset->getId());
-                if($thumbnailUrl === null) {
-                    $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getdocumentthumbnail', $params);
-                }
-
-                break;
-            case $asset instanceof Asset\Audio:
-                $thumbnailUrl = '/bundles/pimcoreadmin/img/flat-color-icons/speaker.svg';
-
-                break;
-            default:
-                $thumbnailUrl = '/bundles/pimcoreadmin/img/filetype-not-supported.svg';
-        }
-
-        return $thumbnailUrl;
+        return match ($asset) {
+            $asset instanceof Asset\Image => $this->urlGenerator->generate('pimcore_admin_asset_getimagethumbnail', $params),
+            $asset instanceof Asset\Folder => $this->urlGenerator->generate('pimcore_admin_asset_getfolderthumbnail', $params),
+            $asset instanceof Asset\Video && \Pimcore\Video::isAvailable() => $this->urlGenerator->generate('pimcore_admin_asset_getvideothumbnail', $params),
+            $asset instanceof Asset\Document && \Pimcore\Document::isAvailable() && $asset->getPageCount() => $this->urlGenerator->generate('pimcore_admin_asset_getdocumentthumbnail', $params),
+            $asset instanceof Asset\Audio => '/bundles/pimcoreadmin/img/flat-color-icons/speaker.svg',
+            default => '/bundles/pimcoreadmin/img/filetype-not-supported.svg',
+        };
     }
 
     /**
