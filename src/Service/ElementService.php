@@ -30,6 +30,7 @@ use Pimcore\Model\Element\Service;
 use Pimcore\Model\Site;
 use Pimcore\Security\User\UserLoader;
 use Pimcore\Tool\Frontend;
+
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -113,9 +114,6 @@ class ElementService implements ElementServiceInterface
         return $tmpNode;
     }
 
-    /**
-     * @throws \Exception
-     */
     public function getThumbnailUrl(Asset $asset, array $params = []): ?string
     {
         $defaults = [
