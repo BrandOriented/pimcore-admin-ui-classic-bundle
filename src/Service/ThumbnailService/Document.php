@@ -63,6 +63,7 @@ class Document implements ServiceInterface
             if(!$storage->fileExists($storagePath)) {
                 $this->async($document->getId());
             }
+
             return [
                 'path' => $storagePath,
                 'mimeType' => $thumbnail->getMimeType(),
