@@ -41,6 +41,7 @@ class Document implements ServiceInterface
             if (is_numeric($request->get('page'))) {
                 $page = (int)$request->get('page');
             }
+
             return [
                 'path' => $this->getStoragePath($thumbnail,
                     $page,
@@ -93,6 +94,7 @@ class Document implements ServiceInterface
         }
 
         $filename .= '.' . $thumbnail->getHash([$checksum]) . '.'. $fileExtension;
+
         return $thumbDir . '/' . $filename;
     }
 
