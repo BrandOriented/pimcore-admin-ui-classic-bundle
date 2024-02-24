@@ -27,6 +27,7 @@ use Pimcore\Bundle\AdminBundle\Security\CsrfProtectionHandler;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailLinkService;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService\Document;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService\Image;
+use Pimcore\Bundle\AdminBundle\Service\ThumbnailService\Video;
 use Pimcore\Config;
 use Pimcore\Controller\KernelControllerEventInterface;
 use Pimcore\Controller\Traits\ElementEditLockHelperTrait;
@@ -1298,82 +1299,30 @@ class AssetController extends ElementControllerBase implements KernelControllerE
      * @param Request $request
      *
      * @return StreamedResponse
+     * @throws FilesystemException
      */
-    public function getVideoThumbnailAction(Request $request): StreamedResponse
+    public function getVideoThumbnailAction(Request $request): Response
     {
-        $video = null;
+        $video = new Video();
+        $thumbnailArray = $video->getThumbnail($request);
 
-        if ($request->get('id')) {
-            $video = Asset\Video::getById((int)$request->get('id'));
-        } elseif ($request->get('path')) {
-            $video = Asset\Video::getByPath($request->get('path'));
+        if (isset($thumbnailArray['path'])) {
+            $storage = Storage::get('thumbnail');
+            $stream = $storage->readStream($thumbnailArray['path']);
+            if ($stream) {
+                $response = new StreamedResponse(function () use ($stream) {
+                    fpassthru($stream);
+                }, 200, [
+                    'Content-Type' => $thumbnailArray['mimeType'],
+                    'Access-Control-Allow-Origin', '*',
+                ]);
+                $this->addThumbnailCacheHeaders($response);
+
+                return $response;
+            }
         }
 
-        if (!$video) {
-            throw $this->createNotFoundException('could not load video asset');
-        }
-
-        if (!$video->isAllowed('view')) {
-            throw $this->createAccessDeniedException('not allowed to view thumbnail');
-        }
-
-        $thumbnail = array_merge($request->request->all(), $request->query->all());
-
-        if ($request->get('treepreview')) {
-            $thumbnail = Asset\Image\Thumbnail\Config::getPreviewConfig();
-        }
-
-        $time = null;
-        if (is_numeric($request->get('time'))) {
-            $time = (int)$request->get('time');
-        }
-
-        if ($request->get('settime')) {
-            $video->removeCustomSetting('image_thumbnail_asset');
-            $video->setCustomSetting('image_thumbnail_time', $time);
-            $video->save();
-        }
-
-        $image = null;
-        if ($request->get('image')) {
-            $image = Asset\Image::getById((int)$request->get('image'));
-        }
-
-        if ($request->get('setimage') && $image) {
-            $video->removeCustomSetting('image_thumbnail_time');
-            $video->setCustomSetting('image_thumbnail_asset', $image->getId());
-            $video->save();
-        }
-
-        $thumb = $video->getImageThumbnail($thumbnail, $time, $image);
-
-        if ($request->get('origin') === 'treeNode' && !$thumb->exists()) {
-            \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
-                new AssetPreviewImageMessage($video->getId())
-            );
-
-            throw $this->createNotFoundException(sprintf('Tree preview thumbnail not available for asset %s', $video->getId()));
-        }
-
-        $imageStorage = ThumbnailLinkService::getImageStorage($video->getId(), $thumbnail);
-        if($imageStorage === null) {
-            return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
-        }
-        $storage = Storage::get('thumbnail');
-        $stream = $storage->readStream($imageStorage);
-        if (!$stream) {
-            return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
-        }
-
-        $response = new StreamedResponse(function () use ($stream) {
-            fpassthru($stream);
-        }, 200, [
-            'Content-Type' => 'image/' . $thumb->getFileExtension(),
-        ]);
-
-        $this->addThumbnailCacheHeaders($response);
-
-        return $response;
+        return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
     }
 
     /**

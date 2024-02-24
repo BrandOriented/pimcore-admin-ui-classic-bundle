@@ -47,6 +47,11 @@ class Document implements ServiceInterface
             if (is_numeric($request->get('page'))) {
                 $page = (int)$request->get('page');
             }
+
+            if ($request->get('origin') === 'treeNode' && !$thumbnail->exists()) {
+                $this->async($document->getId());
+            }
+
             $storagePath = $this->getStoragePath($thumbnail,
                 $page,
                 $document->getId(),
@@ -67,7 +72,12 @@ class Document implements ServiceInterface
         return [];
     }
 
-    public function getStoragePath(Asset\Thumbnail\ThumbnailInterface $thumb, int $page, int $id, string $filename, string $realPlace, string $checksum): string
+    public function getStoragePath(Asset\Thumbnail\ThumbnailInterface $thumb,
+                                   int $page,
+                                   int $id,
+                                   string $filename,
+                                   string $realPath,
+                                   string $checksum): string
     {
         $thumbnail = $thumb->getConfig();
         $thumbnail->setFilenameSuffix('page-' . $page);
@@ -84,8 +94,8 @@ class Document implements ServiceInterface
             }
         }
 
-        $thumbDir = rtrim($realPlace, '/').'/'.$id.'/image-thumb__'.$id.'__'. $thumbnail->getName();
-        $filename = preg_replace("/\." . preg_quote(pathinfo($realPlace, PATHINFO_EXTENSION), '/') . '$/i', '', $realPlace);
+        $thumbDir = rtrim($realPath, '/').'/'.$id.'/image-thumb__'.$id.'__'. $thumbnail->getName();
+        $filename = preg_replace("/\." . preg_quote(pathinfo($filename, PATHINFO_EXTENSION), '/') . '$/i', '', $filename);
 
         // add custom suffix if available
         if ($thumbnail->getFilenameSuffix()) {
@@ -119,6 +129,10 @@ class Document implements ServiceInterface
 
         if ($request->get('treepreview')) {
             $thumbnail = Asset\Image\Thumbnail\Config::getPreviewConfig();
+            $thumbnail->addItem('scaleByWidth', [
+                'width' => 200,
+                'forceResize' => true
+            ]);
         }
 
         $page = 1;

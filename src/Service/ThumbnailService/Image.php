@@ -42,12 +42,16 @@ class Image implements ServiceInterface
         $image = Asset\Image::getById((int)$request->get('id'));
         if ($image && $image->isAllowed('view')) {
             $thumbnail = $this->getThumbnailConfig($image, $request);
+            if ($request->get('origin') === 'treeNode' && !$thumbnail->exists()) {
+                $this->async($image->getId());
+            }
             if($request->get('fileinfo')) {
                 return [
                     'width' => $thumbnail->getWidth(),
                     'height' => $thumbnail->getHeight(),
                 ];
             }
+
 
             $storagePath = $this->getStoragePath($thumbnail,
                 $image->getId(),
