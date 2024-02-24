@@ -126,14 +126,32 @@ class ElementService implements ElementServiceInterface
 
         $params = array_merge($defaults, $params);
 
-        return match ($asset) {
-            $asset instanceof Asset\Image => $this->urlGenerator->generate('pimcore_admin_asset_getimagethumbnail', $params),
-            $asset instanceof Asset\Folder => $this->urlGenerator->generate('pimcore_admin_asset_getfolderthumbnail', $params),
-            $asset instanceof Asset\Video && \Pimcore\Video::isAvailable() => $this->urlGenerator->generate('pimcore_admin_asset_getvideothumbnail', $params),
-            $asset instanceof Asset\Document && \Pimcore\Document::isAvailable() && $asset->getPageCount() => $this->urlGenerator->generate('pimcore_admin_asset_getdocumentthumbnail', $params),
-            $asset instanceof Asset\Audio => '/bundles/pimcoreadmin/img/flat-color-icons/speaker.svg',
-            default => throw new \Exception(get_class($asset)),
-        };
+        switch ($asset) {
+            case $asset instanceof Asset\Image:
+                $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getimagethumbnail', $params);
+
+                break;
+            case $asset instanceof Asset\Folder:
+                $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getfolderthumbnail', $params);
+
+                break;
+            case $asset instanceof Asset\Video && \Pimcore\Video::isAvailable():
+                $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getvideothumbnail', $params);
+
+                break;
+            case $asset instanceof Asset\Document && \Pimcore\Document::isAvailable() && $asset->getPageCount():
+                $thumbnailUrl = $this->urlGenerator->generate('pimcore_admin_asset_getdocumentthumbnail', $params);
+
+                break;
+            case $asset instanceof Asset\Audio:
+                $thumbnailUrl = '/bundles/pimcoreadmin/img/flat-color-icons/speaker.svg';
+
+                break;
+            default:
+                $thumbnailUrl = '/bundles/pimcoreadmin/img/filetype-not-supported.svg';
+        }
+
+        return $thumbnailUrl;
     }
 
     /**
