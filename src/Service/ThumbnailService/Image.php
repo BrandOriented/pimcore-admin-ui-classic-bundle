@@ -21,11 +21,11 @@ use Pimcore\Messenger\AssetPreviewImageMessage;
 use Pimcore\Model\Asset;
 use Symfony\Component\HttpFoundation\Request;
 
-class Image
+class Image implements ServiceInterface
 {
     use JsonHelperTrait;
 
-    private function async(int $id): void
+    public function async(int $id): void
     {
         \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
             new AssetPreviewImageMessage($id)
@@ -58,7 +58,7 @@ class Image
         return [];
     }
 
-    public function getStoragePath(Asset\Image\ThumbnailInterface $thumb, int $id, string $filename, string $realPlace, string $checksum): string
+    public function getStoragePath(Asset\Thumbnail\ThumbnailInterface $thumb, int $id, string $filename, string $realPlace, string $checksum): string
     {
         $thumbnail = $thumb->getConfig();
         $format = strtolower($thumbnail->getFormat());
@@ -98,7 +98,7 @@ class Image
         return $thumbDir . '/' . $filename;
     }
 
-    private function getThumbnailConfig(Asset\Image $image, Request $request): Asset\Image\ThumbnailInterface
+    public function getThumbnailConfig(Asset $image, Request $request): Asset\Image\ThumbnailInterface
     {
         $thumbnailConfig = null;
         if ($request->get('thumbnail')) {

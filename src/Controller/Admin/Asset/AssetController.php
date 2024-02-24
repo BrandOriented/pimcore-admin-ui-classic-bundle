@@ -25,6 +25,7 @@ use Pimcore\Bundle\AdminBundle\Event\ElementAdminStyleEvent;
 use Pimcore\Bundle\AdminBundle\Helper\GridHelperService;
 use Pimcore\Bundle\AdminBundle\Security\CsrfProtectionHandler;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailLinkService;
+use Pimcore\Bundle\AdminBundle\Service\ThumbnailService\Document;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService\Image;
 use Pimcore\Config;
 use Pimcore\Controller\KernelControllerEventInterface;
@@ -1229,16 +1230,6 @@ class AssetController extends ElementControllerBase implements KernelControllerE
     public function getImageThumbnailAction(Request $request): Response
     {
         $fileinfo = $request->get('fileinfo');
-        $image = Asset\Image::getById((int)$request->get('id'));
-
-        if (!$image) {
-            throw $this->createNotFoundException('Asset not found');
-        }
-
-        if (!$image->isAllowed('view')) {
-            throw $this->createAccessDeniedException('not allowed to view thumbnail');
-        }
-
         $image = new Image();
         $thumbnailArray = $image->getThumbnail($request);
 
@@ -1394,65 +1385,26 @@ class AssetController extends ElementControllerBase implements KernelControllerE
      */
     public function getDocumentThumbnailAction(Request $request): BinaryFileResponse|StreamedResponse
     {
-        $document = Asset\Document::getById((int)$request->get('id'));
+        $document = new Document();
+        $thumbnailArray = $document->getThumbnail($request);
 
-        if (!$document) {
-            throw $this->createNotFoundException('could not load document asset');
+        if (isset($thumbnailArray['path'])) {
+            $storage = Storage::get('thumbnail');
+            $stream = $storage->readStream($thumbnailArray['path']);
+            if ($stream) {
+                $response = new StreamedResponse(function () use ($stream) {
+                    fpassthru($stream);
+                }, 200, [
+                    'Content-Type' => $thumbnailArray['mimeType'],
+                    'Access-Control-Allow-Origin', '*',
+                ]);
+                $this->addThumbnailCacheHeaders($response);
+
+                return $response;
+            }
         }
 
-        if (!$document->isAllowed('view')) {
-            throw $this->createAccessDeniedException('not allowed to view thumbnail');
-        }
-
-        $thumbnail = Asset\Image\Thumbnail\Config::getByAutoDetect(array_merge($request->request->all(), $request->query->all()));
-
-        $format = strtolower($thumbnail->getFormat());
-        if ($format == 'source') {
-            $thumbnail->setFormat('jpeg'); // default format for documents is JPEG not PNG (=too big)
-        }
-
-        if ($request->get('treepreview')) {
-            $thumbnail = Asset\Image\Thumbnail\Config::getPreviewConfig();
-        }
-
-        $page = 1;
-        if (is_numeric($request->get('page'))) {
-            $page = (int)$request->get('page');
-        }
-
-        $thumb = $document->getImageThumbnail($thumbnail, $page);
-
-        if ($request->get('origin') === 'treeNode' && !$thumb->exists()) {
-            \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
-                new AssetPreviewImageMessage($document->getId())
-            );
-
-            throw $this->createNotFoundException(sprintf('Tree preview thumbnail not available for asset %s', $document->getId()));
-        }
-
-        $imageStorage = ThumbnailLinkService::getDocumentStorage($document->getId(), $thumbnail);
-        if($imageStorage === null) {
-            return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
-        }
-        $storage = Storage::get('thumbnail');
-        $stream = $storage->readStream($imageStorage);
-        if (!$stream) {
-            return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
-        }
-
-        if ($stream) {
-            $response = new StreamedResponse(function () use ($stream) {
-                fpassthru($stream);
-            }, 200, [
-                'Content-Type' => 'image/' . $thumb->getFileExtension(),
-            ]);
-        } else {
-            $response = new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
-        }
-
-        $this->addThumbnailCacheHeaders($response);
-
-        return $response;
+        return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
     }
 
     protected function addThumbnailCacheHeaders(Response $response): void
