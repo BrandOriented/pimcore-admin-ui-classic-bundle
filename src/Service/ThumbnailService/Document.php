@@ -15,10 +15,13 @@
 
 namespace Pimcore\Bundle\AdminBundle\Service\ThumbnailService;
 
+use League\Flysystem\FilesystemException;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService;
 use Pimcore\Controller\Traits\JsonHelperTrait;
 use Pimcore\Messenger\DocumentPreviewMessage;
 use Pimcore\Model\Asset;
+use Pimcore\Model\Asset\Document\ImageThumbnailInterface;
+use Pimcore\Tool\Storage;
 use Symfony\Component\HttpFoundation\Request;
 
 class Document implements ServiceInterface
@@ -32,6 +35,9 @@ class Document implements ServiceInterface
         );
     }
 
+    /**
+     * @throws FilesystemException
+     */
     public function getThumbnail(Request $request): array
     {
         $document = Asset\Document::getById((int)$request->get('id'));
@@ -41,14 +47,19 @@ class Document implements ServiceInterface
             if (is_numeric($request->get('page'))) {
                 $page = (int)$request->get('page');
             }
+            $storagePath = $this->getStoragePath($thumbnail,
+                $page,
+                $document->getId(),
+                $document->getFilename(),
+                $document->getRealPath(),
+                $document->getChecksum()
+            );
+            $storage = Storage::get('thumbnail');
+            if(!$storage->fileExists($storagePath)) {
+                $this->async($document->getId());
+            }
             return [
-                'path' => $this->getStoragePath($thumbnail,
-                    $page,
-                    $document->getId(),
-                    $document->getFilename(),
-                    $document->getRealPath(),
-                    $document->getChecksum()
-                ),
+                'path' => $storagePath,
                 'mimeType' => $thumbnail->getMimeType(),
             ];
         }
@@ -96,7 +107,7 @@ class Document implements ServiceInterface
         return $thumbDir . '/' . $filename;
     }
 
-    public function getThumbnailConfig(Asset $document, Request $request): Asset\Image\ThumbnailInterface
+    public function getThumbnailConfig(Asset $document, Request $request): ImageThumbnailInterface
     {
         $thumbnail = Asset\Image\Thumbnail\Config::getByAutoDetect(array_merge($request->request->all(), $request->query->all()));
 

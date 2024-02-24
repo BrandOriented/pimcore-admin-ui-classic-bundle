@@ -15,10 +15,12 @@
 
 namespace Pimcore\Bundle\AdminBundle\Service\ThumbnailService;
 
+use League\Flysystem\FilesystemException;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService;
 use Pimcore\Controller\Traits\JsonHelperTrait;
 use Pimcore\Messenger\AssetPreviewImageMessage;
 use Pimcore\Model\Asset;
+use Pimcore\Tool\Storage;
 use Symfony\Component\HttpFoundation\Request;
 
 class Image implements ServiceInterface
@@ -32,6 +34,9 @@ class Image implements ServiceInterface
         );
     }
 
+    /**
+     * @throws FilesystemException
+     */
     public function getThumbnail(Request $request): array
     {
         $image = Asset\Image::getById((int)$request->get('id'));
@@ -44,13 +49,19 @@ class Image implements ServiceInterface
                 ];
             }
 
+            $storagePath = $this->getStoragePath($thumbnail,
+                $image->getId(),
+                $image->getFilename(),
+                $image->getRealPath(),
+                $image->getChecksum()
+            );
+
+            $storage = Storage::get('thumbnail');
+            if(!$storage->fileExists($storagePath)) {
+                $this->async($image->getId());
+            }
             return [
-                'path' => $this->getStoragePath($thumbnail,
-                    $image->getId(),
-                    $image->getFilename(),
-                    $image->getRealPath(),
-                    $image->getChecksum()
-                ),
+                'path' => $storagePath,
                 'mimeType' => $thumbnail->getMimeType(),
             ];
         }
