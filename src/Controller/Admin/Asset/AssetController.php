@@ -1223,6 +1223,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
      * @param Request $request
      *
      * @return Response
+     *
      * @throws FilesystemException
      */
     public function getImageThumbnailAction(Request $request): Response
@@ -1243,7 +1244,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
 
         if ($fileinfo) {
             return $this->adminJson($thumbnailArray);
-        } else if (isset($thumbnailArray['path'])) {
+        } elseif (isset($thumbnailArray['path'])) {
             $storage = Storage::get('thumbnail');
             $stream = $storage->readStream($thumbnailArray['path']);
             if ($stream) {
