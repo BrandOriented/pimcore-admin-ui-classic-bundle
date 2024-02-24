@@ -55,7 +55,8 @@ class Video  implements ServiceInterface
                 $video->getId(),
                 $video->getFilename(),
                 $video->getRealPath(),
-                $video->getChecksum()
+                $video->getChecksum(),
+                $video->getDuration()
             );
 
             $storage = Storage::get('thumbnail');
@@ -71,10 +72,14 @@ class Video  implements ServiceInterface
         return [];
     }
 
-    public function getStoragePath(Asset\Thumbnail\ThumbnailInterface $thumb, int $id, string $filename, string $realPlace, string $checksum): string
+    public function getStoragePath(Asset\Thumbnail\ThumbnailInterface $thumb, int $id, string $filename, string $realPlace, string $checksum, float|int|null $duration): string
     {
         $thumbnail = $thumb->getConfig();
-        $format = strtolower($thumbnail->getFormat());
+        $timeOffset = ceil($duration / 3);
+
+        $config = $thumb->getConfig();
+        $config->setFilenameSuffix('time-' . $timeOffset);
+        $format = strtolower($config->getFormat());
         $fileExt = pathinfo($filename, PATHINFO_EXTENSION);
 
         // simple detection for source type if SOURCE is selected
