@@ -36,7 +36,6 @@ use Pimcore\Event\Model\Asset\ResolveUploadTargetEvent;
 use Pimcore\File;
 use Pimcore\Loader\ImplementationLoader\Exception\UnsupportedException;
 use Pimcore\Logger;
-use Pimcore\Messenger\AssetPreviewImageMessage;
 use Pimcore\Messenger\AssetUpdateTasksMessage;
 use Pimcore\Messenger\DocumentPreviewMessage;
 use Pimcore\Model;
@@ -1298,6 +1297,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
      * @param Request $request
      *
      * @return StreamedResponse
+     *
      * @throws FilesystemException
      */
     public function getVideoThumbnailAction(Request $request): Response
