@@ -104,6 +104,7 @@ class Document implements ServiceInterface
         }
 
         $filename .= '.' . $thumbnail->getHash([$checksum]) . '.'. $fileExtension;
+
         return $thumbDir . '/' . $filename;
     }
 
