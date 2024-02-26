@@ -359,9 +359,9 @@ class GridHelperService
                         }
                     }
                 } elseif ($filter['property'] !== 'fullpath') {
-                    $conditionPartsFilters[] =
+                    $conditionPartsFilters[] = '( ' .
                         $db->quoteIdentifier($filter['property']) . ' IS NULL OR ' .
-                        $db->quoteIdentifier($filter['property']) . " = ''";
+                        $db->quoteIdentifier($filter['property']) . " = '' )";
                 }
             }
         }
@@ -785,6 +785,9 @@ class GridHelperService
                 if ($operator == 'LIKE') {
                     $value = $db->quote('%' . $value . '%');
                 } elseif ($operator == 'IN') {
+                    if (empty($value)) {
+                        continue;
+                    }
                     $quoted = array_map(function ($val) use ($db) {
                         return $db->quote($val);
                     }, $value);
