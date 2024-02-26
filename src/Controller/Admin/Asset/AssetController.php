@@ -1150,10 +1150,6 @@ class AssetController extends ElementControllerBase implements KernelControllerE
     /**
      * @Route("/get-image-thumbnail", name="pimcore_admin_asset_getimagethumbnail", methods={"GET"})
      *
-     * @param Request $request
-     *
-     * @return Response
-     *
      * @throws FilesystemException
      */
     public function getImageThumbnailAction(Request $request): Response
@@ -1222,8 +1218,6 @@ class AssetController extends ElementControllerBase implements KernelControllerE
     /**
      * @Route("/get-video-thumbnail", name="pimcore_admin_asset_getvideothumbnail", methods={"GET"})
      *
-     * @param Request $request
-     *
      * @return StreamedResponse
      *
      * @throws FilesystemException
@@ -1256,10 +1250,6 @@ class AssetController extends ElementControllerBase implements KernelControllerE
 
     /**
      * @Route("/get-document-thumbnail", name="pimcore_admin_asset_getdocumentthumbnail", methods={"GET"})
-     *
-     * @param Request $request
-     *
-     * @return StreamedResponse|BinaryFileResponse
      *
      * @throws FilesystemException
      */
@@ -1394,7 +1384,6 @@ class AssetController extends ElementControllerBase implements KernelControllerE
     }
 
     /**
-     * @param Asset\Document $asset
      *
      * @return resource|null
      */
