@@ -1237,7 +1237,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
         } elseif (isset($thumbnailArray['path'])) {
             $storage = Storage::get('thumbnail');
             if ($storage->fileExists($thumbnailArray['path'])) {
-                $response = new StreamedResponse(function() use ($thumbnailArray, $storage) {
+                $response = new StreamedResponse(function () use ($thumbnailArray, $storage) {
                     $outputStream = fopen('php://output', 'wb');
                     $stream = $storage->readStream($thumbnailArray['path']);
                     stream_copy_to_stream($stream, $outputStream);
@@ -1310,7 +1310,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
         if (isset($thumbnailArray['path'])) {
             $storage = Storage::get('thumbnail');
             if ($storage->fileExists($thumbnailArray['path'])) {
-                $response = new StreamedResponse(function() use ($thumbnailArray, $storage) {
+                $response = new StreamedResponse(function () use ($thumbnailArray, $storage) {
                     $outputStream = fopen('php://output', 'wb');
                     $stream = $storage->readStream($thumbnailArray['path']);
                     stream_copy_to_stream($stream, $outputStream);
@@ -1334,6 +1334,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
      * @param Request $request
      *
      * @return StreamedResponse|BinaryFileResponse
+     *
      * @throws FilesystemException
      */
     public function getDocumentThumbnailAction(Request $request): BinaryFileResponse|StreamedResponse
@@ -1344,7 +1345,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
         if (isset($thumbnailArray['path'])) {
             $storage = Storage::get('thumbnail');
             if ($storage->fileExists($thumbnailArray['path'])) {
-                $response = new StreamedResponse(function() use ($thumbnailArray, $storage) {
+                $response = new StreamedResponse(function () use ($thumbnailArray, $storage) {
                     $outputStream = fopen('php://output', 'wb');
                     $stream = $storage->readStream($thumbnailArray['path']);
                     stream_copy_to_stream($stream, $outputStream);
