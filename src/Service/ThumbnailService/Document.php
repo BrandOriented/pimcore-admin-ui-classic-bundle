@@ -129,7 +129,7 @@ class Document implements ServiceInterface
         }
 
         if ($request->get('treepreview')) {
-            $thumbnail = Asset\Image\Thumbnail\Config::getSmallPreviewConfig();
+            $thumbnail = Asset\Image\Thumbnail\Config::getPreviewConfig();
         }
 
         $page = 1;
