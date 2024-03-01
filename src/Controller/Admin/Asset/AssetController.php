@@ -1164,9 +1164,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             $storage = Storage::get('thumbnail');
             if ($storage->fileExists($thumbnailArray['path'])) {
                 $response = new StreamedResponse(function () use ($thumbnailArray, $storage) {
-                    $outputStream = fopen('php://output', 'wb');
-                    $stream = $storage->readStream($thumbnailArray['path']);
-                    stream_copy_to_stream($stream, $outputStream);
+                    fpassthru($storage->readStream($thumbnailArray['path']));
                 }, 200, [
                     'Content-Type' => $thumbnailArray['mimeType'],
                     'Access-Control-Allow-Origin', '*',
@@ -1231,9 +1229,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             $storage = Storage::get('thumbnail');
             if ($storage->fileExists($thumbnailArray['path'])) {
                 $response = new StreamedResponse(function () use ($thumbnailArray, $storage) {
-                    $outputStream = fopen('php://output', 'wb');
-                    $stream = $storage->readStream($thumbnailArray['path']);
-                    stream_copy_to_stream($stream, $outputStream);
+                    fpassthru($storage->readStream($thumbnailArray['path']));
                 }, 200, [
                     'Content-Type' => $thumbnailArray['mimeType'],
                     'Access-Control-Allow-Origin', '*',
@@ -1262,9 +1258,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             $storage = Storage::get('thumbnail');
             if ($storage->fileExists($thumbnailArray['path'])) {
                 $response = new StreamedResponse(function () use ($thumbnailArray, $storage) {
-                    $outputStream = fopen('php://output', 'wb');
-                    $stream = $storage->readStream($thumbnailArray['path']);
-                    stream_copy_to_stream($stream, $outputStream);
+                    fpassthru($storage->readStream($thumbnailArray['path']));
                 }, 200, [
                     'Content-Type' => $thumbnailArray['mimeType'],
                     'Access-Control-Allow-Origin', '*',
