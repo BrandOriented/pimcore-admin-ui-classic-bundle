@@ -110,31 +110,33 @@ pimcore.asset.text = Class.create(pimcore.asset.asset, {
                         listeners: {
                             afterrender: function (cmp) {
                                 var me = this;
-                                var editor = ace.edit(editorId);
-                                editor.setTheme('ace/theme/chrome');
+                                if(typeof ace !== 'undefined') {
+                                    var editor = ace.edit(editorId);
+                                    editor.setTheme('ace/theme/chrome');
 
-                                //set editor file mode
-                                let modelist = ace.require('ace/ext/modelist');
-                                let mode = modelist.getModeForPath(this.data.url).mode;
-                                editor.getSession().setMode(mode);
+                                    //set editor file mode
+                                    let modelist = ace.require('ace/ext/modelist');
+                                    let mode = modelist.getModeForPath(this.data.url).mode;
+                                    editor.getSession().setMode(mode);
 
-                                //set data
-                                if (this.data.data) {
-                                    editor.setValue(this.data.data);
-                                    editor.clearSelection();
+                                    //set data
+                                    if (this.data.data) {
+                                        editor.setValue(this.data.data);
+                                        editor.clearSelection();
+                                    }
+
+                                    editor.setOptions({
+                                        showLineNumbers: true,
+                                        showPrintMargin: false,
+                                        fontFamily: 'Courier New, Courier, monospace;'
+                                    });
+
+                                    editor.on("change", function (obj) {
+                                        me.detectedChange();
+                                    });
+
+                                    this.editor = editor;
                                 }
-
-                                editor.setOptions({
-                                    showLineNumbers: true,
-                                    showPrintMargin: false,
-                                    fontFamily: 'Courier New, Courier, monospace;'
-                                });
-
-                                editor.on("change", function(obj) {
-                                    me.detectedChange();
-                                });
-
-                                this.editor = editor;
                             }.bind(this)
                         }
                     }]
@@ -142,12 +144,12 @@ pimcore.asset.text = Class.create(pimcore.asset.asset, {
 
 
                 this.editPanel.on("resize", function (el, width, height, rWidth, rHeight) {
-                    this.editor.resize();
+                    this.editor?.resize();
                 }.bind(this));
 
                 this.editPanel.on("destroy", function (el) {
                     if (this.editor) {
-                        this.editor.destroy();
+                        this.editor?.destroy();
                     }
                 }.bind(this));
             } else {
@@ -162,15 +164,15 @@ pimcore.asset.text = Class.create(pimcore.asset.asset, {
 
         return this.editPanel;
     },
-    
-    
+
+
     getSaveData : function ($super, only) {
         const parameters = $super(only);
 
         if(!Ext.isString(only) && this.data.data !== false) {
             parameters.data = this?.editor?.getValue();
         }
-        
+
         return parameters;
     }
 });
