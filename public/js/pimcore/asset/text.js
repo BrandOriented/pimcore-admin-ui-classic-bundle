@@ -165,10 +165,10 @@ pimcore.asset.text = Class.create(pimcore.asset.asset, {
     
     
     getSaveData : function ($super, only) {
-        var parameters = $super(only);
-        
+        const parameters = $super(only);
+
         if(!Ext.isString(only) && this.data.data !== false) {
-            parameters.data = this.editor.getValue();
+            parameters.data = this?.editor?.getValue();
         }
         
         return parameters;
