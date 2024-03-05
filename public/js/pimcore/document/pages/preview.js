@@ -224,7 +224,7 @@ Ext.define('pimcore.document.pages.preview', {
         var date = new Date();
         var path;
 
-        path = this.element.data.path + this.element.data.key + "?pimcore_preview=true&time=" + date.getTime() + "&forceDeviceType=" + device + "&pimcore_override_output_timestamp=" + (this.previewTime.getTime() / 1000);
+        path = "/pimcore/" + this.element.data.path + this.element.data.key + "?pimcore_preview=true&time=" + date.getTime() + "&forceDeviceType=" + device + "&pimcore_override_output_timestamp=" + (this.previewTime.getTime() / 1000);
 
         // add target group parameter if available
         if(this.element["edit"] && this.element.edit.areaToolBar) {
