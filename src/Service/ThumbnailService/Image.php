@@ -20,6 +20,7 @@ use Pimcore\Bundle\AdminBundle\Service\ThumbnailService;
 use Pimcore\Controller\Traits\JsonHelperTrait;
 use Pimcore\Messenger\AssetPreviewImageMessage;
 use Pimcore\Model\Asset;
+use Pimcore\Model\Exception\NotFoundException;
 use Pimcore\Tool\Storage;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -60,12 +61,13 @@ class Image implements ServiceInterface
             );
 
             $storage = Storage::get('thumbnail');
+
             if(!$storage->fileExists($storagePath)) {
                 $this->async($image->getId());
             } else {
                 return [
                     'path' => $storagePath,
-                    'mimeType' => $thumbnail->getMimeType(),
+                    'mimeType' => $storage->mimeType($storagePath),
                 ];
             }
         }
@@ -143,7 +145,7 @@ class Image implements ServiceInterface
             if ($request->get('origin') === 'treeNode' && !$image->getThumbnail($thumbnailConfig)->exists()) {
                 $this->async($image->getId());
 
-                throw $this->createNotFoundException(sprintf('Tree preview thumbnail not available for asset %s', $image->getId()));
+                throw new NotFoundException(sprintf('Tree preview thumbnail not available for asset %s', $image->getId()));
             }
         }
 
