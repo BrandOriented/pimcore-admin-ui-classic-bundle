@@ -1,26 +1,27 @@
 <?php
 
+/**
+ * Pimcore
+ *
+ * This source file is available under two different licenses:
+ * - GNU General Public License version 3 (GPLv3)
+ * - Pimcore Commercial License (PCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ *  @copyright  Copyright (c) Pimcore GmbH (http://www.pimcore.org)
+ *  @license    http://www.pimcore.org/license     GPLv3 and PCL
+ */
+
 namespace Pimcore\Bundle\AdminBundle\Service;
 
 use League\Flysystem\FilesystemException;
 use Pimcore\Loader\ImplementationLoader\Exception\UnsupportedException;
-use Pimcore\Logger;
 use Pimcore\Model\Asset;
 use Pimcore\Model\Asset\MetaData\ClassDefinition\Data\Data;
 use Pimcore\Model\Asset\Service;
-use Pimcore\Config;
-use Pimcore\Event\AssetEvents;
-use Pimcore\Event\Model\AssetEvent;
-use Pimcore\Model;
-use Pimcore\Model\Asset\Image\Thumbnail\Config as ThumbnailConfig;
-use Pimcore\Model\Asset\Image\ThumbnailInterface;
 use Pimcore\Model\Element;
-use Pimcore\Model\Element\ElementInterface;
-use Pimcore\Model\Tool\TmpStore;
-use Pimcore\Tool\Storage;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 class AssetGridService
 {
     /**
