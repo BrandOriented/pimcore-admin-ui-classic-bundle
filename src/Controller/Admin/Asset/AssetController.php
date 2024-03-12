@@ -24,6 +24,7 @@ use Pimcore\Bundle\AdminBundle\Event\AdminEvents;
 use Pimcore\Bundle\AdminBundle\Event\ElementAdminStyleEvent;
 use Pimcore\Bundle\AdminBundle\Helper\GridHelperService;
 use Pimcore\Bundle\AdminBundle\Security\CsrfProtectionHandler;
+use Pimcore\Bundle\AdminBundle\Service\AssetGridService;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService\Document;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService\Image;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService\Video;
@@ -2136,6 +2137,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
 
     /**
      * @Route("/grid-proxy", name="pimcore_admin_asset_gridproxy", methods={"GET", "POST", "PUT"})
+     * @throws FilesystemException
      */
     public function gridProxyAction(Request $request, EventDispatcherInterface $eventDispatcher, GridHelperService $gridHelperService, CsrfProtectionHandler $csrfProtection): JsonResponse
     {
@@ -2287,7 +2289,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             foreach ($list->getAssets() as $index => $asset) {
                 // Like for treeGetChildrenByIdAction, so we respect isAllowed method which can be extended (object DI) for custom permissions, so relying only users_workspaces_asset is insufficient and could lead security breach
                 if ($asset->isAllowed('list')) {
-                    $a = Asset\Service::gridAssetData($asset, $allParams['fields'], $allParams['language'] ?? '');
+                    $a = AssetGridService::gridAssetData($asset, $allParams['fields'], $allParams['language'] ?? '');
                     $assets[] = $a;
                 }
             }
