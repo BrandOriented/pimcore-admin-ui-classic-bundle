@@ -986,6 +986,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
 
     /**
      * @Route("/download-image-thumbnail", name="pimcore_admin_asset_downloadimagethumbnail", methods={"GET"})
+     *
      * @throws FilesystemException
      */
     public function downloadImageThumbnailAction(Request $request): BinaryFileResponse
