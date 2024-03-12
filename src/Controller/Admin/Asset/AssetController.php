@@ -986,6 +986,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
 
     /**
      * @Route("/download-image-thumbnail", name="pimcore_admin_asset_downloadimagethumbnail", methods={"GET"})
+     * @throws FilesystemException
      */
     public function downloadImageThumbnailAction(Request $request): BinaryFileResponse
     {
@@ -1103,8 +1104,10 @@ class AssetController extends ElementControllerBase implements KernelControllerE
 
             clearstatcache();
 
+            $storage = Storage::get('thumbnail');
+
             $response = new BinaryFileResponse($thumbnailFile);
-            $response->headers->set('Content-Type', $thumbnail->getMimeType());
+            $response->headers->set('Content-Type', $storage->mimeType($thumbnailFile));
             $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $downloadFilename);
             $this->addThumbnailCacheHeaders($response);
             $response->deleteFileAfterSend($deleteThumbnail);

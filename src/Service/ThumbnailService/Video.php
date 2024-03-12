@@ -65,7 +65,7 @@ class Video implements ServiceInterface
             } else {
                 return [
                     'path' => $storagePath,
-                    'mimeType' => $thumbnail->getMimeType(),
+                    'mimeType' => $storage->mimeType($storagePath),
                 ];
             }
         }
