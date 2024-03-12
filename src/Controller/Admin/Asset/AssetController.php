@@ -2137,6 +2137,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
 
     /**
      * @Route("/grid-proxy", name="pimcore_admin_asset_gridproxy", methods={"GET", "POST", "PUT"})
+     *
      * @throws FilesystemException
      */
     public function gridProxyAction(Request $request, EventDispatcherInterface $eventDispatcher, GridHelperService $gridHelperService, CsrfProtectionHandler $csrfProtection): JsonResponse
