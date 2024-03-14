@@ -27,7 +27,11 @@ use Symfony\Component\HttpFoundation\Request;
 class Image implements ServiceInterface
 {
     use JsonHelperTrait;
-    public function async(int $id): void {}
+
+    public function async(int $id): void
+    {
+    }
+
     public function asyncByRequest(int $id, Request $request): void
     {
         \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
