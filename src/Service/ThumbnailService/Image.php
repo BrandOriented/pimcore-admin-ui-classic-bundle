@@ -18,7 +18,6 @@ namespace Pimcore\Bundle\AdminBundle\Service\ThumbnailService;
 use League\Flysystem\FilesystemException;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService;
 use Pimcore\Controller\Traits\JsonHelperTrait;
-use Pimcore\Messenger\AssetPreviewImageMessage;
 use Pimcore\Model\Asset;
 use Pimcore\Model\Exception\NotFoundException;
 use Pimcore\Tool\Storage;
@@ -27,7 +26,11 @@ use Symfony\Component\HttpFoundation\Request;
 class Image implements ServiceInterface
 {
     use JsonHelperTrait;
-    public function async(int $id): void {}
+
+    public function async(int $id): void
+    {
+    }
+
     public function asyncByRequest(int $id, Request $request): void
     {
         \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(

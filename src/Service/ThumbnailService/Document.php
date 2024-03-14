@@ -18,7 +18,6 @@ namespace Pimcore\Bundle\AdminBundle\Service\ThumbnailService;
 use League\Flysystem\FilesystemException;
 use Pimcore\Bundle\AdminBundle\Service\ThumbnailService;
 use Pimcore\Controller\Traits\JsonHelperTrait;
-use Pimcore\Messenger\DocumentPreviewMessage;
 use Pimcore\Model\Asset;
 use Pimcore\Model\Asset\Document\ImageThumbnailInterface;
 use Pimcore\Tool\Storage;
@@ -28,7 +27,10 @@ class Document implements ServiceInterface
 {
     use JsonHelperTrait;
 
-    public function async(int $id): void {}
+    public function async(int $id): void
+    {
+    }
+
     public function asyncByRequest(int $id, Request $request): void
     {
         \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
