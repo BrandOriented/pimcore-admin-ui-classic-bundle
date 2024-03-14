@@ -34,7 +34,7 @@ class Video implements ServiceInterface
     public function asyncByRequest(int $id, Request $request): void
     {
         \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
-            new AssetThumbnailMessage($id, $request)
+            new AssetThumbnailMessage($id, array_merge($request->request->all(), $request->query->all()))
         );
     }
 
