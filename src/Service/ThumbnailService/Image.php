@@ -27,11 +27,11 @@ use Symfony\Component\HttpFoundation\Request;
 class Image implements ServiceInterface
 {
     use JsonHelperTrait;
-
-    public function async(int $id): void
+    public function async(int $id): void {}
+    public function asyncByRequest(int $id, Request $request): void
     {
         \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
-            new AssetPreviewImageMessage($id)
+            new AssetThumbnailHandler($id, $request)
         );
     }
 
@@ -44,7 +44,7 @@ class Image implements ServiceInterface
         if ($image && $image->isAllowed('view')) {
             $thumbnail = $this->getThumbnailConfig($image, $request);
             if ($request->get('origin') === 'treeNode' && !$thumbnail->exists()) {
-                $this->async($image->getId());
+                $this->asyncByRequest($image->getId(), $request);
             }
             if($request->get('fileinfo')) {
                 return [
@@ -63,7 +63,7 @@ class Image implements ServiceInterface
             $storage = Storage::get('thumbnail');
 
             if(!$storage->fileExists($storagePath)) {
-                $this->async($image->getId());
+                $this->asyncByRequest($image->getId(), $request);
             } else {
                 return [
                     'path' => $storagePath,

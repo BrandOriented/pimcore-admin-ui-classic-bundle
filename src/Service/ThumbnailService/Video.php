@@ -27,10 +27,11 @@ class Video implements ServiceInterface
 {
     use JsonHelperTrait;
 
-    public function async(int $id): void
+    public function async(int $id): void {}
+    public function asyncByRequest(int $id, Request $request): void
     {
         \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
-            new AssetPreviewImageMessage($id)
+            new AssetThumbnailHandler($id, $request)
         );
     }
 
@@ -48,7 +49,7 @@ class Video implements ServiceInterface
         if ($video && $video->isAllowed('view')) {
             $thumbnail = $this->getThumbnailConfig($video, $request);
             if ($request->get('origin') === 'treeNode' && !$thumbnail->exists()) {
-                $this->async($video->getId());
+                $this->asyncByRequest($video->getId(), $request);
             }
 
             $storagePath = $this->getStoragePath($thumbnail,
@@ -61,7 +62,7 @@ class Video implements ServiceInterface
 
             $storage = Storage::get('thumbnail');
             if(!$storage->fileExists($storagePath)) {
-                $this->async($video->getId());
+                $this->asyncByRequest($video->getId(), $request);
             } else {
                 return [
                     'path' => $storagePath,

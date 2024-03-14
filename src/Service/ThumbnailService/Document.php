@@ -28,10 +28,11 @@ class Document implements ServiceInterface
 {
     use JsonHelperTrait;
 
-    public function async(int $id): void
+    public function async(int $id): void {}
+    public function asyncByRequest(int $id, Request $request): void
     {
         \Pimcore::getContainer()->get('messenger.bus.pimcore-core')->dispatch(
-            new DocumentPreviewMessage($id)
+            new AssetThumbnailHandler($id, $request)
         );
     }
 
@@ -49,7 +50,7 @@ class Document implements ServiceInterface
             }
 
             if ($request->get('origin') === 'treeNode' && !$thumbnail->exists()) {
-                $this->async($document->getId());
+                $this->asyncByRequest($document->getId(), $request);
             }
 
             $storagePath = $this->getStoragePath($thumbnail,
@@ -61,7 +62,7 @@ class Document implements ServiceInterface
             );
             $storage = Storage::get('thumbnail');
             if(!$storage->fileExists($storagePath)) {
-                $this->async($document->getId());
+                $this->asyncByRequest($document->getId(), $request);
             } else {
                 return [
                     'path' => $storagePath,
