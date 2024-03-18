@@ -1106,8 +1106,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             $response = new BinaryFileResponse($localStoragePath.$thumbnailFile);
             $response->headers->set('Content-Type', $storage->mimeType($thumbnailFile));
             $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $downloadFilename);
-            $this->addThumbnailCacheHeaders($response);
-            $response->deleteFileAfterSend($deleteThumbnail);
+            $this->addThumbnailCacheHeaders($response, $request, $storage->lastModified($thumbnailFile));
 
             return $response;
         }
@@ -1142,7 +1141,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             'Content-Type' => $image->getMimeType(),
             'Access-Control-Allow-Origin' => '*',
         ]);
-        $this->addThumbnailCacheHeaders($response);
+        $this->addThumbnailCacheHeaders($response, $request, $image->getModificationDate());
 
         return $response;
     }
@@ -1170,7 +1169,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
                     'Access-Control-Allow-Origin', '*',
                 ]);
 
-                $this->addThumbnailCacheHeaders($response);
+                $this->addThumbnailCacheHeaders($response, $request, $thumbnailArray['modification']);
 
                 return $response;
             }
@@ -1204,7 +1203,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
                     ]);
                 }
 
-                $this->addThumbnailCacheHeaders($response);
+                $this->addThumbnailCacheHeaders($response, $request, $folder->getModificationDate());
 
                 return $response;
             }
@@ -1235,7 +1234,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
                     'Access-Control-Allow-Origin', '*',
                 ]);
 
-                $this->addThumbnailCacheHeaders($response);
+                $this->addThumbnailCacheHeaders($response, $request, $thumbnailArray['modification']);
 
                 return $response;
             }
@@ -1264,7 +1263,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
                     'Access-Control-Allow-Origin', '*',
                 ]);
 
-                $this->addThumbnailCacheHeaders($response);
+                $this->addThumbnailCacheHeaders($response, $request, $thumbnailArray['modification']);
 
                 return $response;
             }
@@ -1273,19 +1272,29 @@ class AssetController extends ElementControllerBase implements KernelControllerE
         return new BinaryFileResponse(PIMCORE_WEB_ROOT . '/bundles/pimcoreadmin/img/filetype-not-supported.svg');
     }
 
-    protected function addThumbnailCacheHeaders(Response $response): void
+    protected function addThumbnailCacheHeaders(Response $response,
+                                                Request $request,
+                                                int $modificationTime): void
     {
         $lifetime = 300;
-        $date = new \DateTime('now');
-        $date->add(new \DateInterval('PT' . $lifetime . 'S'));
+        try {
+            $date = new \DateTime('now');
+            $date->add(new \DateInterval('PT' . $lifetime . 'S'));
+            $response->setExpires($date);
+        } catch (\Exception $e) {
+        }
 
         $response->setMaxAge($lifetime);
         $response->setPublic();
-        $response->setExpires($date);
         $response->headers->set('Pragma', '');
         $response->setCache([
             'must_revalidate'  => true,
         ]);
+
+        $response->setEtag(md5((int)$request->get('id') . $modificationTime));
+        $response->setPublic();
+        $response->isNotModified($request);
+
     }
 
     /**
