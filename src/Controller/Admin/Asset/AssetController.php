@@ -1284,6 +1284,9 @@ class AssetController extends ElementControllerBase implements KernelControllerE
         $response->setPublic();
         $response->setExpires($date);
         $response->headers->set('Pragma', '');
+        $response->setCache([
+            'must_revalidate'  => true,
+        ]);
     }
 
     /**
