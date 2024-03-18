@@ -16,6 +16,7 @@
 namespace Pimcore\Bundle\AdminBundle\Controller\Admin\Asset;
 
 use League\Flysystem\FilesystemException;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 use Pimcore\Bundle\AdminBundle\Controller\Admin\ElementControllerBase;
 use Pimcore\Bundle\AdminBundle\Controller\Traits\AdminStyleTrait;
 use Pimcore\Bundle\AdminBundle\Controller\Traits\ApplySchedulerDataTrait;
@@ -989,6 +990,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
      * @Route("/download-image-thumbnail", name="pimcore_admin_asset_downloadimagethumbnail", methods={"GET"})
      *
      * @throws FilesystemException
+     * @throws \ReflectionException
      */
     public function downloadImageThumbnailAction(Request $request): BinaryFileResponse
     {
@@ -1005,7 +1007,6 @@ class AssetController extends ElementControllerBase implements KernelControllerE
         $config = null;
         $thumbnail = null;
         $thumbnailName = $request->get('thumbnail');
-        $thumbnailFile = null;
         $deleteThumbnail = true;
 
         if ($request->get('config')) {
@@ -1079,13 +1080,6 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             }
 
             $thumbnail = $image->getThumbnail($thumbnailConfig);
-            $thumbnailFile = $thumbnail->getLocalFile();
-
-            $exiftool = \Pimcore\Tool\Console::getExecutable('exiftool');
-            if ($thumbnailConfig->getFormat() == 'JPEG' && $exiftool && isset($config['dpi']) && $config['dpi']) {
-                $process = new Process([$exiftool, '-overwrite_original', '-xresolution=' . (int)$config['dpi'], '-yresolution=' . (int)$config['dpi'], '-resolutionunit=inches', $thumbnailFile]);
-                $process->run();
-            }
         }
 
         if ($thumbnail) {
@@ -1095,9 +1089,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
                 $autoFormatConfig = current($autoFormatConfigs);
                 $thumbnail = $image->getThumbnail($autoFormatConfig);
             }
-
-            $thumbnailFile = $thumbnailFile ?: $thumbnail->getLocalFile();
-
+            $thumbnailFile = $thumbnail->getPath();
             $downloadFilename = preg_replace(
                 '/\.' . preg_quote(pathinfo($image->getFilename(), PATHINFO_EXTENSION)) . '$/i',
                 '.' . $thumbnail->getFileExtension(),
@@ -1107,8 +1099,12 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             clearstatcache();
 
             $storage = Storage::get('thumbnail');
+            $storageReflection = new \ReflectionClass($storage);
+            /** @var LocalFilesystemAdapter $adapter */
+            $storageAdapter = $storageReflection->getProperty('adapter')->getValue($storage);
+            $localStoragePath = (new \ReflectionClass($storageAdapter))->getProperty('rootLocation')->getValue($storageAdapter);
 
-            $response = new BinaryFileResponse($thumbnailFile);
+            $response = new BinaryFileResponse($localStoragePath.$thumbnailFile);
             $response->headers->set('Content-Type', $storage->mimeType($thumbnailFile));
             $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $downloadFilename);
             $this->addThumbnailCacheHeaders($response);
