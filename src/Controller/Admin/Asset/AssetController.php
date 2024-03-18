@@ -1273,10 +1273,11 @@ class AssetController extends ElementControllerBase implements KernelControllerE
     }
 
     protected function addThumbnailCacheHeaders(Response $response,
-                                                Request $request,
-                                                int $modificationTime): void
+        Request $request,
+        int $modificationTime): void
     {
         $lifetime = 300;
+
         try {
             $date = new \DateTime('now');
             $date->add(new \DateInterval('PT' . $lifetime . 'S'));
