@@ -70,7 +70,7 @@ class Document implements ServiceInterface
                 return [
                     'path' => $storagePath,
                     'mimeType' => $storage->mimeType($storagePath),
-                    'modification' => $storage->lastModified($storagePath)
+                    'modification' => $storage->lastModified($storagePath),
                 ];
             }
         }
