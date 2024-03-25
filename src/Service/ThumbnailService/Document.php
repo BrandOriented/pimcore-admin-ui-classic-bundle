@@ -45,7 +45,7 @@ class Document implements ServiceInterface
     public function getThumbnail(Request $request): array
     {
         $document = Asset\Document::getById((int)$request->get('id'));
-        if ($document && $document->isAllowed('view')) {
+        if ($document && $document->getFileSize() < 1024 * 1024 * 50 && $document->isAllowed('view')) {
             $thumbnail = $this->getThumbnailConfig($document, $request);
             $page = 1;
             if (is_numeric($request->get('page'))) {

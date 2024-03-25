@@ -49,7 +49,7 @@ class Video implements ServiceInterface
         } elseif ($request->get('path')) {
             $video = Asset\Video::getByPath($request->get('path'));
         }
-        if ($video && $video->isAllowed('view')) {
+        if ($video && $video->getFileSize() < 1024 * 1024 * 50 && $video->isAllowed('view')) {
             $thumbnail = $this->getThumbnailConfig($video, $request);
             if ($request->get('origin') === 'treeNode' && !$thumbnail->exists()) {
                 $this->asyncByRequest($video->getId(), $request);

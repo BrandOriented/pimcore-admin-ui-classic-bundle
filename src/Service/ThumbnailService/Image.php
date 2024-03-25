@@ -45,7 +45,8 @@ class Image implements ServiceInterface
     public function getThumbnail(Request $request): array
     {
         $image = Asset\Image::getById((int)$request->get('id'));
-        if ($image && $image->isAllowed('view')) {
+
+        if ($image && $image->getFileSize() < 1024 * 1024 * 50 && $image->isAllowed('view')) {
             $thumbnail = $this->getThumbnailConfig($image, $request);
             if ($request->get('origin') === 'treeNode' && !$thumbnail->exists()) {
                 $this->asyncByRequest($image->getId(), $request);
