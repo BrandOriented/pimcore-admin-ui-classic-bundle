@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace Pimcore\Bundle\AdminBundle\Controller\Admin;
 
-use League\Flysystem\FilesystemException;
-use MatthiasMullie\Minify\JS;
 use Pimcore\Bundle\AdminBundle\Controller\AdminAbstractController;
 use Pimcore\Bundle\AdminBundle\System\AdminConfig;
 use Pimcore\Bundle\AdminBundle\Tool as AdminTool;
@@ -126,22 +124,20 @@ class MiscController extends AdminAbstractController
     /**
      * @Route("/script-proxy", name="pimcore_admin_misc_scriptproxy", methods={"GET"})
      *
-     * @throws FilesystemException
      * @internal
      */
     public function scriptProxyAction(Request $request): Response
     {
-        $storageFile = $request->query->getString('storageFile');
+        $storageFile = $request->get('storageFile');
         if(!$storageFile) {
             throw new \InvalidArgumentException('The parameter storageFile is required');
         }
 
         $fileExtension = pathinfo($storageFile, PATHINFO_EXTENSION);
         $storage = Storage::get('admin');
-        $includeContents = $storage->read($storageFile);
+        $scriptsContent = $storage->read($storageFile);
 
-
-        if (!empty($includeContents)) {
+        if (!empty($scriptsContent)) {
             $contentType = 'text/javascript';
             if ($fileExtension == 'css') {
                 $contentType = 'text/css';
@@ -149,11 +145,7 @@ class MiscController extends AdminAbstractController
 
             $lifetime = 86400;
 
-            $minify = new JS($includeContents);
-            $scriptContents = $minify->minify();
-            $scriptContents .= "\r\n;\r\n";
-
-            $response = new Response($scriptContents);
+            $response = new Response($scriptsContent);
             $response->headers->set('Cache-Control', 'max-age=' . $lifetime);
             $response->headers->set('Pragma', '');
             $response->headers->set('Content-Type', $contentType);
