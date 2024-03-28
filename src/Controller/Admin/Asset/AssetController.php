@@ -1581,7 +1581,6 @@ class AssetController extends ElementControllerBase implements KernelControllerE
      */
     public function getFolderContentPreviewAction(Request $request, EventDispatcherInterface $eventDispatcher): JsonResponse
     {
-        return $this->adminJson([]);
         $allParams = array_merge($request->request->all(), $request->query->all());
 
         $filterPrepareEvent = new GenericEvent($this, [
