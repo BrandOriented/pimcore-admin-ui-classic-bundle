@@ -888,20 +888,6 @@ pimcore.layout.toolbar = Class.create({
                  pimcore.notification.helper.incrementCount();
              }
  
-             // check for maintenance
-             if (!pimcore.settings.maintenance_active) {
-                 notificationItems.push({
-                     text: t("maintenance_not_active"),
-                     iconCls: "pimcore_nav_icon_maintenance",
-                     itemId: 'pimcore_menu_notifications_maintenance',
-                     handler: function () {
-                         window.open('https://pimcore.com/docs/platform/Pimcore/Getting_Started/Installation/Webserver_Installation#5-maintenance-cron-job');
-                     }
-                 });
-
-                 pimcore.notification.helper.incrementCount();
-             }
- 
              //check for mail settings
              if (!pimcore.settings.mail) {
                  notificationItems.push({
