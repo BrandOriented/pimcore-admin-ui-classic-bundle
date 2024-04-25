@@ -1766,7 +1766,9 @@ class AssetController extends ElementControllerBase implements KernelControllerE
                 $targetParent = Asset::getById((int) $request->get('targetParentId'));
             }
 
-            $targetPath = preg_replace('@^' . $sourceParent->getRealFullPath() . '@', $targetParent . '/', $source->getRealPath());
+            // EP-248 sanitize source asset path before passing it as regex
+            $pattern = preg_quote($sourceParent->getRealFullPath());
+            $targetPath = preg_replace('@^' . $pattern . '@', $targetParent . '/', $source->getRealPath());
             $target = Asset::getByPath($targetPath);
         } else {
             $target = Asset::getById($targetId);
