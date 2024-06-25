@@ -1285,7 +1285,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
      */
     public function getVideoThumbnailAction(Request $request): Response
     {
-        $video = new Video();
+        $video = new Asset\Video();
         $thumbnailArray = $video->getThumbnail($request);
 
         if (isset($thumbnailArray['path'])) {
@@ -1314,7 +1314,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
      */
     public function getDocumentThumbnailAction(Request $request): BinaryFileResponse|StreamedResponse
     {
-        $document = new Document();
+        $document = new Asset\Document();
         $thumbnailArray = $document->getThumbnail($request);
 
         if (isset($thumbnailArray['path'])) {
