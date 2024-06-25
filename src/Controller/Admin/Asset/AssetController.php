@@ -1159,7 +1159,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
     public function getImageThumbnailAction(Request $request): Response
     {
         $fileinfo = $request->get('fileinfo');
-        $image = new Image();
+        $image = new Asset\Image();
         $thumbnailArray = $image->getThumbnail($request);
 
         if ($fileinfo) {
