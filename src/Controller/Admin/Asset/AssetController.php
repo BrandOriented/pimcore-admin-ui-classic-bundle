@@ -1237,7 +1237,7 @@ class AssetController extends ElementControllerBase implements KernelControllerE
             'Access-Control-Allow-Origin', '*',
         ]);
 
-        $this->addThumbnailCacheHeaders($response);
+        $this->addThumbnailCacheHeaders($response, $request, $image->getModificationDate());
 
         return $response;
     }
@@ -1337,8 +1337,8 @@ class AssetController extends ElementControllerBase implements KernelControllerE
     }
 
     protected function addThumbnailCacheHeaders(Response $response,
-        Request $request,
-        int $modificationTime): void
+                                                Request $request,
+                                                int $modificationTime): void
     {
         $lifetime = 300;
 
