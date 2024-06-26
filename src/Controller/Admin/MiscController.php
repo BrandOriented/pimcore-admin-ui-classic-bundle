@@ -206,9 +206,14 @@ class MiscController extends AdminAbstractController
      */
     public function availableLanguagesAction(Request $request): Response
     {
+        $lifetime = 86400;
         $locales = Tool::getSupportedLocales();
         $response = new Response('pimcore.available_languages = ' . $this->encodeJson($locales) . ';');
         $response->headers->set('Content-Type', 'text/javascript');
+        $response->headers->set('Cache-Control', 'max-age=' . $lifetime);
+        $response->headers->set('Pragma', '');
+        $response->headers->set('Expires', gmdate('D, d M Y H:i:s', time() + $lifetime) . ' GMT');
+        $response->headers->set('Content-Type', 'text/css; charset=UTF-8');
 
         return $response;
     }
