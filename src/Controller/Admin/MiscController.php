@@ -114,10 +114,14 @@ class MiscController extends AdminAbstractController
                 }
             }
         }
+        $lifetime = 86400;
 
         $response = new Response('pimcore.system_i18n = ' . $this->encodeJson($translations) . ';');
         $response->headers->set('Content-Type', 'text/javascript');
-
+        $response->headers->set('Cache-Control', 'max-age=' . $lifetime);
+        $response->headers->set('Pragma', '');
+        $response->headers->set('Expires', gmdate('D, d M Y H:i:s', time() + $lifetime) . ' GMT');
+        $response->headers->set('Content-Type', 'text/css; charset=UTF-8');
         return $response;
     }
 
@@ -169,12 +173,17 @@ class MiscController extends AdminAbstractController
         $languages = \Pimcore\Tool::getValidLanguages();
         $adminLanguages = \Pimcore\Tool\Admin::getLanguages();
         $languages = array_unique(array_merge($languages, $adminLanguages));
+        $lifetime = 86400;
 
         $response = $this->render('@PimcoreAdmin/admin/misc/admin_css.html.twig', [
             'customviews' => $cvData,
             'adminSettings' => AdminConfig::get(),
             'languages' => $languages,
         ]);
+        $response->headers->set('Cache-Control', 'max-age=' . $lifetime);
+        $response->headers->set('Pragma', '');
+        $response->headers->set('Content-Type', 'text/css');
+        $response->headers->set('Expires', gmdate('D, d M Y H:i:s', time() + $lifetime) . ' GMT');
         $response->headers->set('Content-Type', 'text/css; charset=UTF-8');
 
         return $response;
